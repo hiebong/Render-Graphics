@@ -1,0 +1,87 @@
+/* General page styles */
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f7;
+  margin: 0;
+  padding: 0;
+}
+
+.container {
+  width: 90%;
+  max-width: 900px;
+  margin: 30px auto;
+  background-color: #fff;
+  padding: 25px 30px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Headings */
+h1, h2, h3 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* Forms */
+form input, form select, form button {
+  display: block;
+  width: 100%;
+  margin: 10px 0;
+  padding: 10px 12px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+form button {
+  background-color: #4a90e2;
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+form button:hover {
+  background-color: #357ab8;
+}
+
+/* Dashboard buttons */
+.dashboard-buttons {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.dashboard-buttons button {
+  flex: 1;
+  padding: 12px 0;
+  font-size: 16px;
+  border-radius: 8px;
+  border: none;
+  background-color: #4a90e2;
+  color: white;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.dashboard-buttons button:hover {
+  background-color: #357ab8;
+}
+
+/* Portfolio list */
+#portfolioList div {
+  margin-bottom: 20px;
+  border: 1px solid #eee;
+  padding: 10px;
+  border-radius: 8px;
+  background-color: #fafafa;
+}
+
+#portfolioList img {
+  display: block;
+  margin-top: 10px;
+  border-radius: 6px;
+  max-width: 100%;
+  height: auto;
+}

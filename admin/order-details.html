@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Order Details</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+<nav>
+<h2>Render Graphics Admin</h2>
+
+<div>
+<a href="dashboard.html">Dashboard</a>
+<a href="portfolio.html">Portfolio</a>
+<a href="services.html">Services</a>
+</div>
+</nav>
+
+<section class="page">
+
+<h1>Order Details</h1>
+
+<div id="orderInfo"></div>
+
+<h3>Upload Finished Artwork</h3>
+
+<form id="finishForm" enctype="multipart/form-data">
+
+<input type="file" name="finishedFile" required>
+
+<textarea name="artistMessage" placeholder="Message for client"></textarea>
+
+<select name="status">
+<option value="Pending">Pending</option>
+<option value="Accepted">Accepted</option>
+<option value="Completed">Completed</option>
+</select>
+
+<button type="submit">Save</button>
+
+</form>
+
+</section>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const orderId = params.get("id");
+
+async function loadOrder(){
+
+const res = await fetch("/api/orders");
+
+const orders = await res.json();
+
+const order = orders.find(o => o.id == orderId);
+
+let servicesHTML="";
+
+order.services.forEach((s,i)=>{
+servicesHTML += order.quantities[i] + "x " + s + "<br>";
+});
+
+let imagesHTML="";
+
+order.images.forEach(img=>{
+imagesHTML += `<img src="/uploads/${img}" width="150">`;
+});
+
+document.getElementById("orderInfo").innerHTML = `
+
+<p><b>Order ID:</b> ${order.id}</p>
+
+<p><b>Client Name:</b> ${order.name}</p>
+
+<p><b>Services:</b><br>${servicesHTML}</p>
+
+<p><b>Client Comment:</b><br>${order.message}</p>
+
+<p><b>Reference Images:</b><br>${imagesHTML}</p>
+
+`;
+
+}
+
+document.getElementById("finishForm").addEventListener("submit", async function(e){
+
+e.preventDefault();
+
+const formData = new FormData(this);
+
+formData.append("orderId",orderId);
+
+await fetch("/api/orders/finish",{
+method:"POST",
+body:formData
+});
+
+alert("Order updated");
+
+location.reload();
+
+});
+
+loadOrder();
+
+</script>
+
+</body>
+</html>

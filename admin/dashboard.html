@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Admin Dashboard</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+<script>
+if(sessionStorage.getItem("adminLoggedIn") !== "true"){
+window.location.href="login.html";
+}
+
+function logout(){
+sessionStorage.removeItem("adminLoggedIn");
+window.location.href="login.html";
+}
+</script>
+
+<nav>
+<h2>Render Graphics Admin</h2>
+
+<div>
+<a href="dashboard.html">Dashboard</a>
+<a href="portfolio.html">Portfolio</a>
+<a href="services.html">Services</a>
+<a href="#" onclick="logout()">Logout</a>
+</div>
+</nav>
+
+<section class="page">
+
+<h1>Dashboard</h1>
+
+<h3>Customer Orders</h3>
+
+<table class="orders-table">
+
+<thead>
+
+<tr>
+<th>Name</th>
+<th>Services</th>
+<th>Images</th>
+<th>Comment</th>
+<th>Status</th>
+<th>Update</th>
+</tr>
+
+</thead>
+
+<tbody id="ordersTable"></tbody>
+
+</table>
+
+</section>
+
+<script>
+
+async function loadOrders(){
+
+const res = await fetch("/api/orders");
+
+const orders = await res.json();
+
+const table = document.getElementById("ordersTable");
+
+table.innerHTML="";
+
+orders.forEach(order=>{
+
+let servicesHTML="";
+
+if(order.services){
+
+order.services.forEach((service,index)=>{
+
+const qty = order.quantities[index] || 1;
+
+servicesHTML += qty + "x " + service + "<br>";
+
+});
+
+}
+
+let imagesHTML="";
+
+if(order.images){
+
+order.images.forEach(img=>{
+
+imagesHTML += `<img src="/uploads/${img}" width="60" style="margin:3px">`;
+
+});
+
+}
+
+table.innerHTML += `
+
+<tr>
+
+<td>
+<a href="order-details.html?id=${order.id}">
+${order.name}
+</a>
+</td>
+
+<td>${servicesHTML}</td>
+
+<td>${imagesHTML}</td>
+
+<td>${order.message || ""}</td>
+
+<td>${order.status}</td>
+
+<td>
+
+<select onchange="updateStatus(${order.id}, this.value)">
+
+<option value="Pending" ${order.status==="Pending"?"selected":""}>Pending</option>
+<option value="Accepted" ${order.status==="Accepted"?"selected":""}>Accepted</option>
+<option value="Completed" ${order.status==="Completed"?"selected":""}>Completed</option>
+
+</select>
+
+</td>
+
+</tr>
+
+`;
+
+});
+
+}
+
+async function updateStatus(id,status){
+
+await fetch("/api/orders/"+id,{
+method:"PUT",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({status})
+});
+
+loadOrders();
+
+}
+
+loadOrders();
+
+</script>
+
+</body>
+</html>

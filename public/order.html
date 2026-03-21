@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Order Commission</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Montserrat:ital@1&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<nav class="nav-overlay">
+
+  <a href="index.html" class="nav-pill">HOME</a>
+
+  <div class="nav-right">
+    <a href="portfolio.html" class="nav-pill">PORTFOLIO</a>
+    <a href="services.html" class="nav-pill">SERVICES</a>
+    <a href="about.html" class="nav-pill">ABOUT</a>
+
+    <div class="dropdown">
+      <a href="#" class="nav-pill dropdown-btn">ORDER ▾</a>
+
+      <div class="dropdown-menu">
+        <a href="order.html">Place Order</a>
+        <a href="track.html">Check Order Status</a>
+      </div>
+    </div>
+  </div>
+
+</nav>
+
+<div class="page">
+
+<h2>Place Your Order</h2>
+
+<form id="orderForm" enctype="multipart/form-data">
+
+<!-- CLIENT NAME -->
+<input type="text" name="name" placeholder="Your Name" required>
+
+<!-- CLIENT EMAIL -->
+<input type="email" name="email" placeholder="Your Email Address" required>
+
+<h3>Your Services</h3>
+
+<div id="orderItems"></div>
+
+<button type="button" onclick="addRow()">Add Another Service</button>
+
+<br><br>
+
+<textarea name="message" placeholder="Additional details about your order"></textarea>
+
+<h3>Upload Reference Images (Max 10)</h3>
+
+<input type="file" name="images" multiple accept="image/*">
+
+<br><br>
+
+<button type="submit">Submit Order</button>
+
+</form>
+
+<div id="orderResult"></div>
+
+</div>
+
+<script>
+
+let services=[];
+
+async function loadServices(){
+
+const res = await fetch("/api/services");
+
+services = await res.json();
+
+addRow();
+
+loadCart();
+
+}
+
+function addRow(service="", qty=1){
+
+const container = document.getElementById("orderItems");
+
+let options="";
+
+services.forEach(s=>{
+
+const selected = s.title === service ? "selected" : "";
+
+options += `<option value="${s.title}" ${selected}>${s.title}</option>`;
+
+});
+
+container.innerHTML += `
+
+<div class="order-row">
+
+<select name="service[]">
+${options}
+</select>
+
+<input type="number" name="quantity[]" value="${qty}" min="1">
+
+</div>
+
+`;
+
+}
+
+function loadCart(){
+
+let cart = JSON.parse(localStorage.getItem("orderCart")) || [];
+
+if(cart.length === 0) return;
+
+document.getElementById("orderItems").innerHTML="";
+
+cart.forEach(item=>{
+addRow(item.service,item.quantity);
+});
+
+localStorage.removeItem("orderCart");
+
+}
+
+document.getElementById("orderForm").addEventListener("submit", async function(e){
+
+e.preventDefault();
+
+const formData = new FormData(this);
+
+const res = await fetch("/api/order",{
+method:"POST",
+body:formData
+});
+
+const data = await res.json();
+
+document.getElementById("orderForm").reset();
+
+document.getElementById("orderItems").innerHTML="";
+
+addRow();
+
+document.getElementById("orderResult").innerHTML = `
+
+<div style="margin-top:20px;padding:20px;border:1px solid #ddd;border-radius:8px">
+
+<h3>Order Submitted Successfully!</h3>
+
+<p>Your Order ID:</p>
+
+<h2>${data.orderId}</h2>
+
+<p>A confirmation email has been sent to you with your order details.</p>
+
+<p>Save your Order ID to check your order status.</p>
+
+</div>
+
+`;
+
+});
+
+loadServices();
+
+</script>
+<script>
+document.querySelectorAll(".dropdown-btn").forEach(btn => {
+  btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    const menu = this.nextElementSibling;
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  });
+});
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".dropdown-menu").forEach(menu => {
+    menu.style.display = "none";
+  });
+});
+</script>
+</body>
+</html>

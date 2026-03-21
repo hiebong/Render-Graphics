@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Services Manager</title>
+<link rel="stylesheet" href="admin.css">
+</head>
+
+<body>
+
+<script>
+if(sessionStorage.getItem("adminLoggedIn") !== "true"){
+window.location.href="login.html";
+}
+
+function logout(){
+sessionStorage.removeItem("adminLoggedIn");
+window.location.href="login.html";
+}
+</script>
+
+<nav>
+<h2>Render Graphics Admin</h2>
+
+<div>
+<a href="dashboard.html">Dashboard</a>
+<a href="portfolio.html">Portfolio</a>
+<a href="services.html">Services</a>
+<a href="#" onclick="logout()">Logout</a>
+</div>
+</nav>
+
+<section class="page">
+
+<h1>Manage Services</h1>
+
+<h3>Add Service</h3>
+
+<form id="serviceForm">
+
+<input type="text" name="title" placeholder="Service Title" required>
+
+<input type="text" name="price" placeholder="Price (example: $25)" required>
+
+<textarea name="description" placeholder="Description" required></textarea>
+
+<button type="submit">Add Service</button>
+
+</form>
+
+<hr>
+
+<h3>Existing Services</h3>
+
+<div id="serviceList"></div>
+
+</section>
+
+<script>
+
+const form = document.getElementById("serviceForm");
+
+form.addEventListener("submit", async function(e){
+
+e.preventDefault();
+
+const data = {
+title: form.title.value,
+description: form.description.value,
+price: form.price.value
+};
+
+await fetch("/api/services",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(data)
+});
+
+form.reset();
+
+loadServices();
+
+});
+
+async function loadServices(){
+
+const res = await fetch("/api/services");
+
+const services = await res.json();
+
+const container = document.getElementById("serviceList");
+
+container.innerHTML="";
+
+services.forEach(service=>{
+
+container.innerHTML += `
+
+<div style="border:1px solid #ddd;padding:15px;margin-bottom:15px;border-radius:8px;">
+
+<h3>${service.title}</h3>
+
+<p>${service.description}</p>
+
+<b>${service.price}</b>
+
+<br><br>
+
+<button onclick="deleteService(${service.id})">Delete</button>
+
+</div>
+
+`;
+
+});
+
+}
+
+async function deleteService(id){
+
+await fetch("/api/services/"+id,{
+method:"DELETE"
+});
+
+loadServices();
+
+}
+
+loadServices();
+
+</script>
+
+</body>
+</html>

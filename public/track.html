@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<title>Check Order Status</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@800&family=Montserrat:ital@1&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+<nav class="nav-overlay">
+
+  <a href="index.html" class="nav-pill">HOME</a>
+
+  <div class="nav-right">
+    <a href="portfolio.html" class="nav-pill">PORTFOLIO</a>
+    <a href="services.html" class="nav-pill">SERVICES</a>
+    <a href="about.html" class="nav-pill">ABOUT</a>
+
+    <div class="dropdown">
+      <a href="#" class="nav-pill dropdown-btn">ORDER ▾</a>
+
+      <div class="dropdown-menu">
+        <a href="order.html">Place Order</a>
+        <a href="track.html">Check Order Status</a>
+      </div>
+    </div>
+  </div>
+
+</nav>
+<div class="page">
+
+<h2>Check Your Order Status</h2>
+
+<input id="orderId" placeholder="Enter Order ID">
+
+<button onclick="checkOrder()">Check Status</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+async function checkOrder(){
+
+const id = document.getElementById("orderId").value;
+
+const res = await fetch("/api/orders");
+
+const orders = await res.json();
+
+const order = orders.find(o => o.id == id);
+
+const result = document.getElementById("result");
+
+if(!order){
+result.innerHTML = "<p>Order not found.</p>";
+return;
+}
+
+/* SERVICES */
+
+let servicesHTML = "";
+
+if(order.services){
+order.services.forEach((service,index)=>{
+const qty = order.quantities[index] || 1;
+servicesHTML += qty + "x " + service + "<br>";
+});
+}
+
+/* REFERENCE IMAGES */
+
+let imagesHTML = "";
+
+if(order.images){
+order.images.forEach(img=>{
+imagesHTML += `<img src="/uploads/${img}" width="120" style="margin:5px">`;
+});
+}
+
+/* FINISHED FILE */
+
+let downloadHTML = "";
+
+if(order.finishedFile){
+downloadHTML = `
+<h3>Download Finished Artwork</h3>
+<a href="/uploads/${order.finishedFile}" download>
+Download Your Artwork
+</a>
+`;
+}
+
+/* DISPLAY */
+
+result.innerHTML = `
+
+<h3>Status: ${order.status}</h3>
+
+<h3>Services Ordered</h3>
+<p>${servicesHTML}</p>
+
+<h3>Reference Images</h3>
+<div>${imagesHTML}</div>
+
+<h3>Artist Message</h3>
+<p>${order.artistMessage || "No message yet."}</p>
+
+${downloadHTML}
+
+`;
+
+}
+
+</script>
+<script>
+document.querySelectorAll(".dropdown-btn").forEach(btn => {
+  btn.addEventListener("click", function(e){
+    e.stopPropagation();
+    const menu = this.nextElementSibling;
+    menu.style.display = menu.style.display === "block" ? "none" : "block";
+  });
+});
+
+document.addEventListener("click", () => {
+  document.querySelectorAll(".dropdown-menu").forEach(menu => {
+    menu.style.display = "none";
+  });
+});
+</script>
+</body>
+</html>
