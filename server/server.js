@@ -378,3 +378,17 @@ app.listen(3000,()=>{
 console.log("Server running on http://localhost:3000");
 
 });
+
+app.delete("/api/portfolio/:id", (req, res) => {
+
+  let portfolio = readJSON(portfolioFile);
+
+  const id = parseInt(req.params.id);
+
+  portfolio = portfolio.filter(item => item.id !== id);
+
+  writeJSON(portfolioFile, portfolio);
+
+  res.json({ message: "Portfolio item deleted" });
+
+});
