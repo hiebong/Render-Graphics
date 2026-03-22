@@ -45,15 +45,27 @@ body{
 
 /* PILLS */
 .nav-pill{
-  background:rgba(255,255,255,0.9);
-  padding:8px 16px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:12px 24px;   /* 🔥 bigger height + width */
+  font-size:14px;      /* 🔥 bigger text */
+
   border-radius:999px;
-  font-size:12px;
+  background:rgba(255,255,255,0.95);
+
   font-weight:700;
   text-decoration:none;
   color:#333;
-  border:none;
+
   cursor:pointer;
+  transition:all 0.25s ease;
+}
+
+.nav-pill:hover{
+  transform:translateY(-4px) scale(1.07);
+  box-shadow:0 12px 25px rgba(0,0,0,0.18);
 }
 
 /* HERO TEXT */
@@ -64,10 +76,13 @@ body{
 }
 
 .hero-content h1{
+  font-family:'Montserrat', sans-serif;
+  font-weight:1100; /* bold */
   font-size:110px;
   color:white;
   margin:0;
   line-height:0.9;
+  letter-spacing:-2px;
 }
 
 /* TAGLINE */
@@ -76,18 +91,39 @@ body{
   padding:8px 18px;
   background:rgba(255,255,255,0.9);
   border-radius:999px;
+
   font-family:'Montserrat', sans-serif;
   font-style:italic;
+  font-weight:300;
   font-size:12px;
+
+  color:#333;
+  text-decoration:none;
+
+  display:inline-block;
+  transition:all 0.2s ease;
+}
+
+/* HOVER EFFECT */
+.tagline:hover{
+  transform:translateY(-2px);
+  background:white;
 }
 
 /* PAGE CONTENT */
 .page{
-  max-width:900px;
-  margin:40px auto;
+  max-width:1100px;
+  margin:120px auto 40px auto; /* 🔥 pushes it down */
   padding:40px;
-  background:white;
-  border-radius:20px;
+
+  background:rgba(255,255,255,0.20); /* 🔥 semi transparent */
+  backdrop-filter:blur(12px);        /* 🔥 frosted effect */
+
+  border-radius:25px;
+
+  box-shadow:0 10px 30px rgba(0,0,0,0.08);
+
+  border:1px solid rgba(255,255,255,0.4); /* 🔥 glass edge */
 }
 
 /* SERVICES */
@@ -140,21 +176,40 @@ button{
 }
 
 /* DROPDOWN */
+/* DROPDOWN CONTAINER */
 .dropdown{
   position:relative;
 }
 
+/* MENU */
 .dropdown-menu{
-  display:none;
   position:absolute;
-  top:40px;
+  top:120%; /* 👈 creates space */
   right:0;
+
   background:white;
   border-radius:10px;
   overflow:hidden;
   box-shadow:0 5px 15px rgba(0,0,0,0.2);
+
+  min-width:180px;
+
+  opacity:0;
+  visibility:hidden;
+  transform:translateY(10px);
+
+  transition:all 0.2s ease;
 }
 
+/* 🔥 KEY FIX: HOVER AREA */
+.dropdown:hover .dropdown-menu,
+.dropdown-menu:hover{
+  opacity:1;
+  visibility:visible;
+  transform:translateY(0);
+}
+
+/* LINKS */
 .dropdown-menu a{
   display:block;
   padding:10px;
@@ -164,4 +219,107 @@ button{
 
 .dropdown-menu a:hover{
   background:#eee;
+}
+.dropdown-menu{
+  backdrop-filter: blur(10px);
+}
+
+
+.hero-content h1{
+  font-family:'Montserrat', sans-serif;
+  font-weight:900;
+  font-size:110px;
+  color:white;
+  margin:0;
+  line-height:0.9;
+  letter-spacing:-2px;
+
+  transition:all 0.3s ease; /* 🔥 smooth animation */
+  cursor:pointer;
+}
+
+/* HOVER EFFECT */
+.hero-content h1:hover{
+  transform:translateY(-5px) scale(1.02);
+  text-shadow:0 10px 30px rgba(0,0,0,0.2);
+}
+/* LOGO IMAGE */
+.hero-logo{
+  width:500px; /* adjust if needed */
+  max-width:90%;
+  height:auto;
+
+  transition:all 0.3s ease;
+  cursor:pointer;
+}
+
+/* HOVER EFFECT */
+.hero-logo:hover{
+  transform:translateY(-5px) scale(1.03);
+  filter:drop-shadow(0 10px 25px rgba(0,0,0,0.2));
+}
+/* WRAPPER CONTROLS TRUE CENTER */
+.logo-wrapper{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+
+  width:100%;
+}
+
+/* IMAGE */
+.hero-logo{
+  width:700px;
+  max-width:90%;
+  height:auto;
+
+  display:block;
+
+  transform:translateX(-2%); /* 🔥 ADJUST THIS */
+}
+
+/* PORTFOLIO PAGE BACKGROUND */
+.portfolio-page{
+  background-image:url("BG1.png");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  min-height:100vh;
+}
+
+/* PORTFOLIO CONTAINER */
+#portfolioList{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+  gap:25px;
+
+  padding:40px;
+}
+
+/* EACH ITEM */
+.portfolio-item{
+  background:rgba(255,255,255,0.25); /* 🔥 frosted white */
+  backdrop-filter:blur(12px);       /* 🔥 glass effect */
+
+  border-radius:20px;
+  padding:15px;
+
+  box-shadow:0 10px 30px rgba(0,0,0,0.1);
+
+  transition:all 0.25s ease;
+}
+
+.portfolio-item img{
+  width:100%;
+  border-radius:15px;
+  display:block;
+}
+
+/* HOVER */
+.portfolio-item:hover{
+  transform:translateY(-5px);
+  background:rgba(255,255,255,0.8);
+}
+.portfolio-item{
+  border:1px solid rgba(255,255,255,0.4);
 }
