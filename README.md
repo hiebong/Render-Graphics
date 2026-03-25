@@ -24,14 +24,14 @@ A full-stack digital art studio platform where clients can commission custom art
 
 ## Table of Contents
 
-- [Features]
-- [Technologies Used]
-- [Project Structure]
-- [Installation & Setup]
-- [API Endpoints]
-- [Firebase Security Rules]
-- [Deployment]
-- [Screenshots]
+- Features
+- Technologies Used
+- Project Structure
+- Installation & Setup
+- API Endpoints
+- Firebase Security Rules
+- Deployment
+- Screenshots
 
 ---
 
