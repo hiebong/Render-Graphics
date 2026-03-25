@@ -1,136 +1,962 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-<title>Check Order Status</title>
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Track Order | Render Graphics</title>
+  <link rel="icon" type="image/png" href="logo/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400&display=swap"
+    rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #f0ebe3;
+      --cream: #f7f3ee;
+      --warm: #e8e0d4;
+      --text: #1e1612;
+      --mid: #3a302a;
+      --mute: #7a6e64;
+      --faint: #a89e96;
+      --accent: #a07858;
+      --glass: rgba(252, 249, 244, 0.72);
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ══ NAV ══════════════════════════════════════ */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 20px 52px;
+      background: rgba(240, 235, 227, 0.6);
+      border-bottom: 0.5px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      transition: padding 0.3s ease, background 0.3s ease;
+    }
+
+    nav.scrolled { padding: 14px 52px; background: rgba(240, 235, 227, 0.88); }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 20px;
+      letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); text-decoration: none;
+      z-index: 101;
+    }
+
+    /* Mobile Menu Toggle */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 21px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 101;
+    }
+
+    .menu-toggle span {
+      width: 100%;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .menu-toggle.active span:first-child {
+      transform: translateY(9.5px) rotate(45deg);
+    }
+
+    .menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menu-toggle.active span:last-child {
+      transform: translateY(-9.5px) rotate(-45deg);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .nav-pill {
+      display: inline-flex; align-items: center; padding: 9px 20px;
+      font-family: 'Jost', sans-serif; font-size: 10.5px; font-weight: 400;
+      letter-spacing: 0.15em; text-transform: uppercase; color: var(--mid); text-decoration: none;
+      border-radius: 999px; background: rgba(255, 255, 255, 0.55);
+      border: 0.5px solid rgba(255, 255, 255, 0.75); backdrop-filter: blur(8px);
+      transition: background 0.22s, transform 0.22s, box-shadow 0.22s; cursor: pointer;
+    }
+
+    .nav-pill:hover { background: rgba(255, 255, 255, 0.95); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.09); }
+    .nav-pill.active { background: rgba(255, 255, 255, 0.95); box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+
+    .dropdown { position: relative; }
+
+    .dropdown-menu {
+      position: absolute; top: calc(100% + 10px); right: 0; min-width: 190px;
+      background: rgba(252, 249, 244, 0.97); border: 0.5px solid rgba(255, 255, 255, 0.8);
+      border-radius: 16px; overflow: hidden; box-shadow: 0 16px 48px rgba(0,0,0,0.13);
+      backdrop-filter: blur(16px); opacity: 0; visibility: hidden; transform: translateY(8px);
+      transition: opacity 0.22s, transform 0.22s, visibility 0.22s;
+    }
+
+    .dropdown:hover .dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+
+    .dropdown-menu a {
+      display: block; padding: 13px 20px; font-size: 10.5px; font-weight: 400;
+      letter-spacing: 0.12em; text-transform: uppercase; color: var(--mid); text-decoration: none;
+      border-bottom: 0.5px solid rgba(190, 175, 158, 0.15); transition: background 0.18s, padding-left 0.18s;
+    }
+
+    .dropdown-menu a:last-child { border-bottom: none; }
+    .dropdown-menu a:hover { background: rgba(160, 140, 118, 0.07); padding-left: 26px; }
+
+    /* Mobile overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(4px);
+      z-index: 98;
+    }
+
+    .mobile-overlay.active {
+      display: block;
+    }
+
+    .section-label {
+      font-size: 10px; font-weight: 400; letter-spacing: 0.24em; text-transform: uppercase;
+      color: var(--faint); margin-bottom: 16px; display: flex; align-items: center; gap: 14px;
+    }
+
+    .section-label::after { content: ''; flex: 1; max-width: 48px; height: 0.5px; background: var(--faint); }
+
+    .page-hero {
+      padding: 160px 52px 80px; text-align: center; background: var(--cream);
+      border-bottom: 0.5px solid rgba(190, 175, 158, 0.2); position: relative; overflow: hidden;
+    }
+
+    .page-hero::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, rgba(160, 120, 88, 0.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .page-hero .section-label { justify-content: center; }
+    .page-hero .section-label::after { display: none; }
+
+    .page-hero h1 {
+      font-family: 'Cormorant Garamond', serif; font-weight: 400; font-size: 72px;
+      letter-spacing: 0.04em; line-height: 1.0; color: var(--text); margin-bottom: 20px;
+    }
+
+    .page-hero h1 em { font-style: italic; color: var(--mute); }
+
+    .page-hero p {
+      font-size: 14px; font-weight: 300; color: var(--mute); letter-spacing: 0.04em;
+      line-height: 1.8; max-width: 420px; margin: 0 auto;
+    }
+
+    .track-section { padding: 80px 52px 120px; max-width: 860px; margin: 0 auto; }
+
+    .search-card {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-bottom-color: rgba(200, 188, 172, 0.4);
+      border-right-color: rgba(200, 188, 172, 0.35);
+      border-radius: 28px; padding: 48px; backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(0,0,0,0.04), 0 20px 48px rgba(0,0,0,0.08);
+      margin-bottom: 32px;
+    }
+
+    .search-card h2 { font-family: 'Cormorant Garamond', serif; font-size: 30px; font-weight: 400; letter-spacing: 0.04em; color: var(--text); margin-bottom: 8px; }
+    .search-card p { font-size: 13px; font-weight: 300; color: var(--mute); line-height: 1.7; margin-bottom: 28px; }
+
+    .search-row { display: flex; gap: 12px; align-items: stretch; }
+
+    .search-row input {
+      flex: 1; padding: 14px 20px; font-family: 'Jost', sans-serif; font-size: 13px; font-weight: 300;
+      color: var(--text); background: rgba(255, 255, 255, 0.65);
+      border: 0.5px solid rgba(190, 175, 158, 0.35); border-radius: 14px; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    }
+
+    .search-row input::placeholder { color: var(--faint); }
+    .search-row input:focus { border-color: rgba(160, 120, 88, 0.5); background: rgba(255,255,255,0.9); box-shadow: 0 0 0 3px rgba(160,120,88,0.08); }
+
+    .search-btn {
+      padding: 14px 28px; border-radius: 14px; font-family: 'Jost', sans-serif;
+      font-size: 10.5px; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase;
+      background: var(--text); color: var(--cream); border: none; cursor: pointer;
+      transition: background 0.22s, transform 0.22s, box-shadow 0.22s; white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .search-btn:hover:not(:disabled) { background: var(--mid); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.2); }
+    .search-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    #result { display: flex; flex-direction: column; gap: 20px; }
+
+    .order-card {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-bottom-color: rgba(200, 188, 172, 0.4);
+      border-right-color: rgba(200, 188, 172, 0.35);
+      border-radius: 24px; backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 4px 12px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.07);
+      overflow: hidden; animation: cardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .order-card-header {
+      padding: 28px 36px; display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; border-bottom: 0.5px solid rgba(190, 175, 158, 0.2); flex-wrap: wrap;
+    }
+
+    .order-card-title { font-family: 'Cormorant Garamond', serif; font-size: 24px; font-weight: 400; letter-spacing: 0.04em; color: var(--text); }
+    .order-card-id { font-size: 10.5px; font-weight: 300; letter-spacing: 0.1em; color: var(--faint); margin-top: 4px; word-break: break-all; }
+
+    .status-badge {
+      display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px;
+      border-radius: 999px; font-size: 10.5px; font-weight: 400; letter-spacing: 0.14em;
+      text-transform: uppercase; white-space: nowrap;
+    }
+
+    .status-badge .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .status-pending  { background: rgba(180,140,60,0.1);  border: 0.5px solid rgba(180,140,60,0.25);  color: #8a6a1a; }
+    .status-pending .dot  { background: #c49a20; }
+    .status-progress { background: rgba(60,100,180,0.1);  border: 0.5px solid rgba(60,100,180,0.25);  color: #284896; }
+    .status-progress .dot { background: #3c64b4; }
+    .status-completed{ background: rgba(60,140,80,0.1);   border: 0.5px solid rgba(60,140,80,0.25);   color: #2a6a38; }
+    .status-completed .dot{ background: #3c8c50; }
+    .status-default  { background: rgba(160,140,118,0.1); border: 0.5px solid rgba(160,140,118,0.25); color: var(--mute); }
+    .status-default .dot  { background: var(--faint); }
+
+    .order-card-body { padding: 28px 36px; display: flex; flex-direction: column; gap: 28px; }
+
+    .order-section-label { font-size: 9.5px; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: var(--faint); margin-bottom: 12px; }
+
+    .services-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .service-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px; background: rgba(255,255,255,0.5);
+      border: 0.5px solid rgba(190,175,158,0.2); border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .service-item-name { font-size: 13px; font-weight: 300; color: var(--text); }
+    .service-item-qty  { font-size: 11px; font-weight: 400; letter-spacing: 0.12em; text-transform: uppercase; color: var(--faint); }
+
+    .additional-item {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 16px;
+      background: rgba(160, 120, 88, 0.05);
+      border: 0.5px solid rgba(160, 120, 88, 0.15);
+      border-radius: 10px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .additional-item-name { font-size: 13px; font-weight: 300; color: var(--text); }
+    .additional-item-price { font-size: 11px; font-weight: 400; letter-spacing: 0.1em; color: var(--accent); }
+
+    .images-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+
+    .images-grid img {
+      width: 90px; height: 90px; object-fit: cover; border-radius: 10px;
+      border: 0.5px solid rgba(190,175,158,0.25); cursor: pointer;
+      transition: transform 0.22s, box-shadow 0.22s;
+    }
+
+    .images-grid img:hover { transform: scale(1.05); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+
+    .download-btn {
+      display: inline-flex; align-items: center; gap: 9px; padding: 13px 28px;
+      border-radius: 999px; font-family: 'Jost', sans-serif; font-size: 10.5px; font-weight: 400;
+      letter-spacing: 0.16em; text-transform: uppercase; background: var(--text); color: var(--cream);
+      text-decoration: none; transition: background 0.22s, transform 0.22s, box-shadow 0.22s;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+    }
+
+    .download-btn:hover { background: var(--mid); transform: translateY(-2px); box-shadow: 0 10px 28px rgba(0,0,0,0.2); }
+
+    .not-found {
+      text-align: center; padding: 60px 40px; background: var(--glass);
+      border: 1px solid rgba(255,255,255,0.85); border-radius: 24px;
+      animation: cardIn 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .not-found-icon { color: var(--faint); margin-bottom: 20px; }
+    .not-found h3 { font-family: 'Cormorant Garamond', serif; font-size: 26px; font-weight: 400; color: var(--text); margin-bottom: 10px; }
+    .not-found p  { font-size: 13px; font-weight: 300; color: var(--mute); line-height: 1.7; }
+
+    .lightbox {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(12px);
+      display: none; align-items: center; justify-content: center; z-index: 200; padding: 40px;
+    }
+
+    .lightbox.open { display: flex; }
+    .lightbox img { max-width: 90%; max-height: 85vh; border-radius: 12px; box-shadow: 0 32px 80px rgba(0,0,0,0.4); }
+
+    .lightbox-close {
+      position: absolute; top: 24px; right: 24px; width: 44px; height: 44px;
+      background: rgba(255,255,255,0.15); border: 0.5px solid rgba(255,255,255,0.25);
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      color: white; cursor: pointer; transition: background 0.2s;
+    }
+
+    .lightbox-close:hover { background: rgba(255,255,255,0.25); }
+
+    footer {
+      background: var(--cream); padding: 60px 52px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+      border-top: 0.5px solid rgba(190,175,158,0.3); flex-wrap: wrap; gap: 24px;
+    }
+
+    .footer-brand { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text); }
+    .footer-links { display: flex; gap: 28px; flex-wrap: wrap; }
+    .footer-links a { font-size: 10.5px; font-weight: 400; letter-spacing: 0.14em; text-transform: uppercase; color: var(--mute); text-decoration: none; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--text); }
+    .footer-copy { font-size: 11px; font-weight: 300; letter-spacing: 0.06em; color: var(--faint); }
+
+    .back-to-top {
+      position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px;
+      background: var(--accent); color: white; border: none; border-radius: 50%; cursor: pointer;
+      display: none; align-items: center; justify-content: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 99;
+    }
+
+    .back-to-top.show { display: flex; }
+
+    .reveal { opacity: 0; transform: translateY(32px); transition: opacity 0.7s ease, transform 0.7s ease; }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+
+    /* ══ RESPONSIVE DESIGN ══════════════════════════════ */
+    
+    /* Tablet Portrait (768px and below) */
+    @media (max-width: 768px) {
+      nav {
+        padding: 16px 24px;
+      }
+
+      nav.scrolled {
+        padding: 12px 24px;
+      }
+
+      .menu-toggle {
+        display: flex;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: rgba(240, 235, 227, 0.98);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        align-items: stretch;
+        padding: 80px 24px 40px;
+        gap: 12px;
+        box-shadow: -8px 0 32px rgba(0,0,0,0.1);
+        transition: right 0.3s ease;
+        z-index: 100;
+      }
+
+      .nav-links.active {
+        right: 0;
+      }
+
+      .nav-pill {
+        justify-content: center;
+        padding: 12px 20px;
+        font-size: 12px;
+      }
+
+      .dropdown {
+        width: 100%;
+      }
+
+      .dropdown .nav-pill {
+        width: 100%;
+      }
+
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        background: rgba(255,255,255,0.5);
+        margin-top: 8px;
+        box-shadow: none;
+        display: none;
+      }
+
+      .dropdown.active .dropdown-menu {
+        display: block;
+      }
+
+      .page-hero {
+        padding: 120px 24px 50px;
+      }
+
+      .page-hero h1 {
+        font-size: 48px;
+      }
+
+      .track-section {
+        padding: 50px 24px 60px;
+      }
+
+      .search-card {
+        padding: 32px 24px;
+      }
+
+      .search-card h2 {
+        font-size: 26px;
+      }
+
+      .search-row {
+        flex-direction: column;
+      }
+
+      .search-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .order-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px;
+      }
+
+      .order-card-body {
+        padding: 24px;
+        gap: 24px;
+      }
+
+      .order-card-title {
+        font-size: 22px;
+      }
+
+      .service-item, .additional-item {
+        flex-direction: column;
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      .service-item-qty, .additional-item-price {
+        align-self: flex-start;
+      }
+
+      .images-grid img {
+        width: 75px;
+        height: 75px;
+      }
+
+      .download-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 48px 24px 32px;
+      }
+
+      .footer-links {
+        justify-content: center;
+      }
+    }
+
+    /* Mobile (600px and below) */
+    @media (max-width: 600px) {
+      .page-hero h1 {
+        font-size: 36px;
+      }
+
+      .page-hero p {
+        font-size: 13px;
+      }
+
+      .search-card h2 {
+        font-size: 24px;
+      }
+
+      .search-card p {
+        font-size: 12px;
+      }
+
+      .order-card-title {
+        font-size: 20px;
+      }
+
+      .order-card-id {
+        font-size: 10px;
+      }
+
+      .status-badge {
+        font-size: 10px;
+        padding: 6px 12px;
+      }
+
+      .service-item-name, .additional-item-name {
+        font-size: 12px;
+      }
+
+      .images-grid img {
+        width: 65px;
+        height: 65px;
+      }
+
+      .not-found h3 {
+        font-size: 22px;
+      }
+
+      .back-to-top {
+        width: 44px;
+        height: 44px;
+        bottom: 16px;
+        right: 16px;
+      }
+    }
+
+    /* Small Mobile (480px and below) */
+    @media (max-width: 480px) {
+      .page-hero h1 {
+        font-size: 28px;
+      }
+
+      .search-card {
+        padding: 24px 20px;
+      }
+
+      .search-card h2 {
+        font-size: 22px;
+      }
+
+      .order-card-header {
+        padding: 20px;
+      }
+
+      .order-card-body {
+        padding: 20px;
+      }
+
+      .images-grid img {
+        width: 55px;
+        height: 55px;
+      }
+
+      .not-found {
+        padding: 40px 24px;
+      }
+
+      .not-found h3 {
+        font-size: 20px;
+      }
+    }
+
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+      .nav-pill,
+      .search-btn,
+      .download-btn,
+      .back-to-top,
+      .lightbox-close {
+        cursor: default;
+      }
+
+      .nav-pill:active {
+        background: rgba(255,255,255,0.95);
+        transform: scale(0.98);
+      }
+
+      .search-btn:active {
+        transform: scale(0.98);
+      }
+
+      .images-grid img:active {
+        transform: scale(1.03);
+      }
+    }
+
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
 
 <body>
 
-<nav class="nav-overlay">
-
-  <a href="index.html" class="nav-pill">HOME</a>
-
-  <div class="nav-right">
-    <a href="portfolio.html" class="nav-pill">PORTFOLIO</a>
-    <a href="services.html" class="nav-pill">SERVICES</a>
-    <a href="about.html" class="nav-pill">ABOUT</a>
-
-    <!-- 🔥 FIXED DROPDOWN -->
-    <div class="dropdown">
-      <div class="nav-pill">ORDER ▾</div>
-
-      <div class="dropdown-menu">
-        <a href="order.html">Place Order</a>
-        <a href="track.html">Check Order Status</a>
+  <nav id="navbar">
+    <a href="index.html" class="nav-logo">Render Graphics</a>
+    
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-pill">HOME</a>
+      <a href="portfolio.html" class="nav-pill">Portfolio</a>
+      <a href="services.html" class="nav-pill">Services</a>
+      <a href="about.html" class="nav-pill">About</a>
+      <div class="dropdown" id="orderDropdown">
+        <div class="nav-pill active">Order ▾</div>
+        <div class="dropdown-menu">
+          <a href="order.html">Place Order</a>
+          <a href="track.html">Check Order Status</a>
+        </div>
       </div>
     </div>
+  </nav>
+  
+  <div class="mobile-overlay" id="mobileOverlay"></div>
 
+  <section class="page-hero">
+    <div class="section-label">Track</div>
+    <h1>Order <em>Status</em></h1>
+    <p>Enter your Order ID below to see your commission's progress and any messages from us.</p>
+  </section>
+
+  <div class="track-section">
+    <div class="search-card reveal">
+      <h2>Check your order</h2>
+      <p>You'll find your Order ID in the confirmation you received after placing your order.</p>
+      <div class="search-row">
+        <input id="orderId" type="text" placeholder="Paste your Order ID here…">
+        <button class="search-btn" id="checkBtn">Check Status</button>
+      </div>
+    </div>
+    <div id="result"></div>
   </div>
 
-</nav>
-<div class="page">
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <img id="lightboxImg" src="" alt="">
+  </div>
 
-<h2>Check Your Order Status</h2>
+  <footer>
+    <span class="footer-brand">Render Graphics</span>
+    <div class="footer-links">
+      <a href="portfolio.html">Portfolio</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">About</a>
+      <a href="order.html">Order</a>
+    </div>
+    <span class="footer-copy">© 2025 Render Graphics. All rights reserved.</span>
+  </footer>
 
-<input id="orderId" placeholder="Enter Order ID">
+  <button class="back-to-top" id="backToTop">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18,15 12,9 6,15"></polyline>
+    </svg>
+  </button>
 
-<button onclick="checkOrder()">Check Status</button>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-<div id="result"></div>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCuP5W68lIQuoETBf5PrEQG8AJo2eU4ezU",
+      authDomain: "render-graphics.firebaseapp.com",
+      projectId: "render-graphics",
+      storageBucket: "render-graphics.firebasestorage.app",
+      messagingSenderId: "348022591762",
+      appId: "1:348022591762:web:efcac1875b11ae1c17a3cb"
+    };
 
-</div>
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
 
-<script>
+    function getStatusClass(status) {
+      if (!status) return "status-default";
+      const s = status.toLowerCase();
+      if (s.includes("pending"))  return "status-pending";
+      if (s.includes("progress")) return "status-progress";
+      if (s.includes("complete")) return "status-completed";
+      return "status-default";
+    }
 
-async function checkOrder(){
+    async function checkOrder() {
+      const id       = document.getElementById("orderId").value.trim();
+      const result   = document.getElementById("result");
+      const checkBtn = document.getElementById("checkBtn");
 
-const id = document.getElementById("orderId").value;
+      if (!id) {
+        result.innerHTML = `<div class="not-found"><div class="not-found-icon"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><h3>No ID entered</h3><p>Please paste your Order ID in the field above.</p></div>`;
+        return;
+      }
 
-const res = await fetch("/api/orders");
+      checkBtn.disabled     = true;
+      checkBtn.textContent  = "Checking…";
+      result.innerHTML      = "";
 
-const orders = await res.json();
+      try {
+        const docSnap = await getDoc(doc(db, "orders", id));
 
-const order = orders.find(o => o.id == id);
+        if (!docSnap.exists()) {
+          result.innerHTML = `
+            <div class="not-found">
+              <div class="not-found-icon">
+                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+              </div>
+              <h3>Order not found</h3>
+              <p>We couldn't find an order with that ID. Double-check for typos and try again.</p>
+            </div>`;
+          return;
+        }
 
-const result = document.getElementById("result");
+        const order       = docSnap.data();
+        const statusClass = getStatusClass(order.status);
 
-if(!order){
-result.innerHTML = "<p>Order not found.</p>";
-return;
-}
+        let servicesHTML = "";
+        if (Array.isArray(order.services) && order.services.length) {
+          servicesHTML = order.services.map(s => `
+            <div class="service-item">
+              <span class="service-item-name">${s.name || s}</span>
+              <span class="service-item-qty">${s.quantity ? `×${s.quantity}` : ""}</span>
+            </div>
+          `).join("");
+        } else {
+          servicesHTML = `<div class="service-item"><span class="service-item-name">—</span></div>`;
+        }
 
-/* SERVICES */
+        let additionalsHTML = "";
+        if (Array.isArray(order.additionals) && order.additionals.length) {
+          const rows = order.additionals.map(a => `
+            <div class="additional-item">
+              <span class="additional-item-name">${a.name || a}</span>
+              <span class="additional-item-price">${a.price
+                ? "$" + Number(a.price).toLocaleString(undefined, { minimumFractionDigits: 2 })
+                : ""}</span>
+            </div>
+          `).join("");
 
-let servicesHTML = "";
+          additionalsHTML = `
+            <div>
+              <div class="order-section-label">Additionals</div>
+              <div class="services-list">${rows}</div>
+            </div>`;
+        }
 
-if(order.services){
-order.services.forEach((service,index)=>{
-const qty = order.quantities[index] || 1;
-servicesHTML += qty + "x " + service + "<br>";
-});
-}
+        let imagesHTML = "";
+        if (Array.isArray(order.images) && order.images.length) {
+          imagesHTML = `
+            <div>
+              <div class="order-section-label">Reference images</div>
+              <div class="images-grid" id="refImages">
+                ${order.images.map((src, i) => `<img src="${src}" alt="Reference ${i + 1}" data-src="${src}">`).join("")}
+              </div>
+            </div>`;
+        }
 
-/* REFERENCE IMAGES */
+        let downloadHTML = "";
+        if (order.finishedFile) {
+          downloadHTML = `
+            <div>
+              <div class="order-section-label">Your finished artwork</div>
+              <a href="${order.finishedFile}" download class="download-btn">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Download artwork
+              </a>
+            </div>`;
+        }
 
-let imagesHTML = "";
+        result.innerHTML = `
+          <div class="order-card">
+            <div class="order-card-header">
+              <div>
+                <div class="order-card-title">${order.name || "Your Order"}</div>
+                <div class="order-card-id">Order ID: ${id}</div>
+              </div>
+              <div>
+                <div class="status-badge ${statusClass}">
+                  <span class="dot"></span>
+                  ${order.status || "Unknown"}
+                </div>
+                <p style="font-size:12px; color:var(--mute); margin-top:6px;">
+                  ${order.status === "Pending"     ? "Waiting for approval." :
+                    order.status === "On Progress" ? "Your artwork is being created." :
+                    order.status === "Completed"   ? "Your order is finished." :
+                    "Status updated."}
+                </p>
+              </div>
+            </div>
 
-if(order.images){
-order.images.forEach(img=>{
-imagesHTML += `<img src="/uploads/${img}" width="120" style="margin:5px">`;
-});
-}
+            <div class="order-card-body">
 
-/* FINISHED FILE */
+              <div>
+                <div class="order-section-label">Services ordered</div>
+                <div class="services-list">${servicesHTML}</div>
+              </div>
 
-let downloadHTML = "";
+              ${additionalsHTML}
 
-if(order.finishedFile){
-downloadHTML = `
-<h3>Download Finished Artwork</h3>
-<a href="/uploads/${order.finishedFile}" download>
-Download Your Artwork
-</a>
-`;
-}
+              <div>
+                <div class="order-section-label">Total Price</div>
+                <div class="service-item">
+                  <span class="service-item-name">${order.totalPrice
+                    ? "$" + Number(order.totalPrice).toLocaleString(undefined, { minimumFractionDigits: 2 })
+                    : "—"}</span>
+                </div>
+              </div>
 
-/* DISPLAY */
+              ${imagesHTML}
+              ${downloadHTML}
 
-result.innerHTML = `
+            </div>
+          </div>
+        `;
 
-<h3>Status: ${order.status}</h3>
+        document.querySelectorAll("#refImages img").forEach(img => {
+          img.addEventListener("click", () => {
+            document.getElementById("lightboxImg").src = img.dataset.src;
+            document.getElementById("lightbox").classList.add("open");
+          });
+        });
 
-<h3>Services Ordered</h3>
-<p>${servicesHTML}</p>
+      } catch (err) {
+        console.error("Track error:", err);
+        result.innerHTML = `<div class="not-found"><h3>Something went wrong</h3><p>${err.message}</p></div>`;
+      } finally {
+        checkBtn.disabled    = false;
+        checkBtn.textContent = "Check Status";
+      }
+    }
 
-<h3>Reference Images</h3>
-<div>${imagesHTML}</div>
+    document.getElementById("checkBtn").addEventListener("click", checkOrder);
+    document.getElementById("orderId").addEventListener("keydown", e => {
+      if (e.key === "Enter") checkOrder();
+    });
 
-<h3>Artist Message</h3>
-<p>${order.artistMessage || "No message yet."}</p>
+    document.getElementById("lightboxClose").addEventListener("click", () => {
+      document.getElementById("lightbox").classList.remove("open");
+    });
+    document.getElementById("lightbox").addEventListener("click", e => {
+      if (e.target === document.getElementById("lightbox"))
+        document.getElementById("lightbox").classList.remove("open");
+    });
+    document.addEventListener("keydown", e => {
+      if (e.key === "Escape") document.getElementById("lightbox").classList.remove("open");
+    });
+  </script>
 
-${downloadHTML}
+  <script>
+    const navbar = document.getElementById("navbar");
+    window.addEventListener("scroll", () => navbar.classList.toggle("scrolled", window.scrollY > 60));
 
-`;
+    // Mobile menu functionality
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
+    const mobileOverlay = document.getElementById("mobileOverlay");
+    const orderDropdown = document.getElementById("orderDropdown");
 
-}
+    function closeMobileMenu() {
+      navLinks.classList.remove("active");
+      menuToggle.classList.remove("active");
+      mobileOverlay.classList.remove("active");
+      document.body.style.overflow = "";
+    }
 
-</script>
-<script>
-document.querySelectorAll(".dropdown-btn").forEach(btn => {
-  btn.addEventListener("click", function(e){
-    e.stopPropagation();
-    const menu = this.nextElementSibling;
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-  });
-});
+    function openMobileMenu() {
+      navLinks.classList.add("active");
+      menuToggle.classList.add("active");
+      mobileOverlay.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
 
-document.addEventListener("click", () => {
-  document.querySelectorAll(".dropdown-menu").forEach(menu => {
-    menu.style.display = "none";
-  });
-});
-</script>
+    menuToggle.addEventListener("click", () => {
+      if (navLinks.classList.contains("active")) {
+        closeMobileMenu();
+      } else {
+        openMobileMenu();
+      }
+    });
+
+    mobileOverlay.addEventListener("click", closeMobileMenu);
+
+    // Handle dropdown on mobile
+    if (orderDropdown) {
+      const dropdownTrigger = orderDropdown.querySelector(".nav-pill");
+      dropdownTrigger.addEventListener("click", (e) => {
+        if (window.innerWidth <= 768) {
+          e.preventDefault();
+          orderDropdown.classList.toggle("active");
+        }
+      });
+    }
+
+    // Close mobile menu on link click
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+          closeMobileMenu();
+        }
+      });
+    });
+
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768 && navLinks.classList.contains("active")) {
+        closeMobileMenu();
+      }
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+    const backToTopBtn = document.getElementById("backToTop");
+    window.addEventListener("scroll", () => backToTopBtn.classList.toggle("show", window.scrollY > 300));
+    backToTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  </script>
+
 </body>
 </html>
