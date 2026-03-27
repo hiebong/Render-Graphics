@@ -1,190 +1,1979 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
-<title>Order Commission</title>
-<link rel="stylesheet" href="style.css">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Montserrat:wght@700;900&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Place Order | Render Graphics</title>
+  <link rel="icon" type="image/png" href="logo/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400&display=swap"
+    rel="stylesheet">
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #f0ebe3;
+      --cream: #f7f3ee;
+      --warm: #e8e0d4;
+      --text: #1e1612;
+      --mid: #3a302a;
+      --mute: #5f554c;
+      --faint: #a89e96;
+      --accent: #a07858;
+      --glass: rgba(252, 249, 244, 0.72);
+      --error: #c0392b;
+      --success: #5a7a5a;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      font-family: 'Jost', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+
+    /* ══ NAV ══════════════════════════════════════ */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 20px 52px;
+      background: rgba(240, 235, 227, 0.6);
+      border-bottom: 0.5px solid rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      transition: padding 0.3s ease, background 0.3s ease;
+    }
+
+    nav.scrolled {
+      padding: 14px 52px;
+      background: rgba(240, 235, 227, 0.88);
+    }
+
+    .nav-logo {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 20px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-decoration: none;
+      z-index: 101;
+    }
+
+    /* Mobile Menu Toggle */
+    .menu-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 30px;
+      height: 21px;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      z-index: 101;
+    }
+
+    .menu-toggle span {
+      width: 100%;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .menu-toggle.active span:first-child {
+      transform: translateY(9.5px) rotate(45deg);
+    }
+
+    .menu-toggle.active span:nth-child(2) {
+      opacity: 0;
+    }
+
+    .menu-toggle.active span:last-child {
+      transform: translateY(-9.5px) rotate(-45deg);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+    }
+
+    .nav-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 20px;
+      font-family: 'Jost', sans-serif;
+      font-size: 10.5px;
+      font-weight: 400;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.55);
+      border: 0.5px solid rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(8px);
+      transition: background 0.22s, transform 0.22s, box-shadow 0.22s;
+      cursor: pointer;
+    }
+
+    .nav-pill:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.09);
+    }
+
+    .nav-pill.active {
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .dropdown {
+      position: relative;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      min-width: 190px;
+      background: rgba(252, 249, 244, 0.97);
+      border: 0.5px solid rgba(255, 255, 255, 0.8);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 16px 48px rgba(0, 0, 0, 0.13);
+      backdrop-filter: blur(16px);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(8px);
+      transition: opacity 0.22s, transform 0.22s, visibility 0.22s;
+    }
+
+    .dropdown:hover .dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 13px 20px;
+      font-size: 10.5px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--mid);
+      text-decoration: none;
+      border-bottom: 0.5px solid rgba(190, 175, 158, 0.15);
+      transition: background 0.18s, padding-left 0.18s;
+    }
+
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .dropdown-menu a:hover {
+      background: rgba(160, 140, 118, 0.07);
+      padding-left: 26px;
+    }
+
+    /* Mobile overlay */
+    .mobile-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+      z-index: 98;
+    }
+
+    .mobile-overlay.active {
+      display: block;
+    }
+
+    /* ══ SHARED ═══════════════════════════════════ */
+    .section-label {
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.24em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      max-width: 48px;
+      height: 0.5px;
+      background: var(--faint);
+    }
+
+    /* ══ PAGE HERO ════════════════════════════════ */
+    .page-hero {
+      padding: 160px 52px 80px;
+      text-align: center;
+      background: var(--cream);
+      border-bottom: 0.5px solid rgba(190, 175, 158, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page-hero::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 60%, rgba(160, 120, 88, 0.07) 0%, transparent 65%);
+      pointer-events: none;
+    }
+
+    .page-hero .section-label {
+      justify-content: center;
+    }
+
+    .page-hero .section-label::after {
+      display: none;
+    }
+
+    .page-hero h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 400;
+      font-size: 72px;
+      letter-spacing: 0.04em;
+      line-height: 1.0;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+
+    .page-hero h1 em {
+      font-style: italic;
+      color: var(--mute);
+    }
+
+    .page-hero p {
+      font-size: 14px;
+      font-weight: 300;
+      color: var(--mute);
+      letter-spacing: 0.04em;
+      line-height: 1.8;
+      max-width: 420px;
+      margin: 0 auto;
+    }
+
+    /* ══ FORM SECTION ═════════════════════════════ */
+    .form-section {
+      padding: 80px 52px 120px;
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: 48px;
+      align-items: start;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    .form-card {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-bottom-color: rgba(200, 188, 172, 0.4);
+      border-right-color: rgba(200, 188, 172, 0.35);
+      border-radius: 28px;
+      padding: 48px;
+      backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 12px rgba(0, 0, 0, 0.04), 0 20px 48px rgba(0, 0, 0, 0.08);
+    }
+
+    .form-card h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 32px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .form-card .form-sub {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mute);
+      line-height: 1.7;
+      margin-bottom: 36px;
+    }
+
+    /* ── fields ── */
+    .field-group {
+      margin-bottom: 20px;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 10px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 8px;
+    }
+
+    .field-group input,
+    .field-group textarea,
+    .field-group select {
+      width: 100%;
+      padding: 13px 18px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.65);
+      border: 0.5px solid rgba(190, 175, 158, 0.35);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      appearance: none;
+    }
+
+    .field-group input:focus,
+    .field-group textarea:focus,
+    .field-group select:focus {
+      border-color: rgba(160, 120, 88, 0.5);
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 0 3px rgba(160, 120, 88, 0.08);
+    }
+
+    .field-group input::placeholder,
+    .field-group textarea::placeholder {
+      color: var(--faint);
+    }
+
+    .field-group textarea {
+      resize: vertical;
+      min-height: 110px;
+    }
+
+    .field-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* ── form divider ── */
+    .form-divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin: 32px 0 24px;
+    }
+
+    .form-divider span {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      white-space: nowrap;
+    }
+
+    .form-divider::before,
+    .form-divider::after {
+      content: '';
+      flex: 1;
+      height: 0.5px;
+      background: rgba(190, 175, 158, 0.35);
+    }
+
+    /* ── order rows (services) ── */
+    #orderItems {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .order-row {
+      display: grid;
+      grid-template-columns: 1fr 100px 36px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .order-row select,
+    .order-row input[type="number"] {
+      padding: 12px 16px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.65);
+      border: 0.5px solid rgba(190, 175, 158, 0.35);
+      border-radius: 12px;
+      outline: none;
+      appearance: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .order-row select:focus,
+    .order-row input[type="number"]:focus {
+      border-color: rgba(160, 120, 88, 0.5);
+      box-shadow: 0 0 0 3px rgba(160, 120, 88, 0.08);
+    }
+
+    /* ── additional rows ── */
+    #additionalItems {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .additional-row {
+      display: grid;
+      grid-template-columns: 1fr 36px;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .additional-row select {
+      padding: 12px 16px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.65);
+      border: 0.5px solid rgba(190, 175, 158, 0.35);
+      border-radius: 12px;
+      outline: none;
+      appearance: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .additional-row select:focus {
+      border-color: rgba(160, 120, 88, 0.5);
+      box-shadow: 0 0 0 3px rgba(160, 120, 88, 0.08);
+    }
+
+    .remove-row {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(192, 57, 43, 0.08);
+      border: 0.5px solid rgba(192, 57, 43, 0.2);
+      color: var(--error);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+      flex-shrink: 0;
+    }
+
+    .remove-row:hover {
+      background: rgba(192, 57, 43, 0.15);
+      transform: scale(1.08);
+    }
+
+    .add-row-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: 999px;
+      font-family: 'Jost', sans-serif;
+      font-size: 10.5px;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(160, 120, 88, 0.08);
+      border: 0.5px solid rgba(160, 120, 88, 0.25);
+      cursor: pointer;
+      transition: background 0.22s, transform 0.22s;
+    }
+
+    .add-row-btn:hover {
+      background: rgba(160, 120, 88, 0.14);
+      transform: translateY(-2px);
+    }
+
+    /* ── total box ── */
+    #totalBox {
+      width: 100%;
+      margin-top: 20px;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.65);
+      border: 1px solid rgba(160, 140, 118, 0.25);
+      border-radius: 14px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
+
+    .total-label {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--faint);
+      font-weight: 400;
+    }
+
+    #totalPrice {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    /* ── file upload ── */
+    .file-upload-area {
+      border: 1.5px dashed rgba(160, 120, 88, 0.3);
+      border-radius: 14px;
+      padding: 28px 20px;
+      text-align: center;
+      background: rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+      transition: border-color 0.22s, background 0.22s;
+      position: relative;
+    }
+
+    .file-upload-area:hover {
+      border-color: rgba(160, 120, 88, 0.55);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .file-upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .file-upload-icon {
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .file-upload-area p {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mute);
+      line-height: 1.6;
+    }
+
+    .file-upload-area p strong {
+      color: var(--accent);
+      font-weight: 400;
+    }
+
+    #filePreview {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .preview-item {
+      position: relative;
+      border-radius: 12px;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.6);
+      border: 1px solid rgba(190, 175, 158, 0.25);
+    }
+
+    .preview-item img {
+      width: 100%;
+      height: 70px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .preview-remove {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: rgba(30, 22, 18, 0.75);
+      color: white;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .preview-remove:hover {
+      background: var(--error);
+    }
+
+    /* ── submit ── */
+    .submit-btn {
+      width: 100%;
+      padding: 16px 32px;
+      margin-top: 32px;
+      border-radius: 999px;
+      font-family: 'Jost', sans-serif;
+      font-size: 11px;
+      font-weight: 400;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      background: var(--text);
+      color: var(--cream);
+      border: none;
+      cursor: pointer;
+      transition: background 0.24s, transform 0.24s, box-shadow 0.24s;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.18);
+    }
+
+    .submit-btn:hover:not(:disabled) {
+      background: var(--mid);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    /* ── result cards ── */
+    #orderResult {
+      margin-top: 24px;
+    }
+
+    .result-card {
+      border-radius: 20px;
+      padding: 32px 36px;
+      backdrop-filter: blur(12px);
+      border: 1px solid;
+    }
+
+    .result-card.success {
+      background: rgba(90, 122, 90, 0.08);
+      border-color: rgba(90, 122, 90, 0.25);
+    }
+
+    .result-card.error {
+      background: rgba(192, 57, 43, 0.07);
+      border-color: rgba(192, 57, 43, 0.2);
+    }
+
+    .result-card .result-label {
+      font-size: 10px;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--faint);
+      margin-bottom: 10px;
+    }
+
+    .result-card .result-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 24px;
+      font-weight: 400;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .result-card .order-id-box {
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid rgba(190, 175, 158, 0.3);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin: 16px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .result-card .order-id {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 22px;
+      font-weight: 400;
+      color: var(--text);
+      letter-spacing: 0.04em;
+      word-break: break-all;
+    }
+
+    .copy-btn {
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-family: 'Jost', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: var(--text);
+      color: var(--cream);
+      border: none;
+      cursor: pointer;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--mid);
+    }
+
+    .result-card p {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mute);
+      line-height: 1.7;
+    }
+
+    /* ══ SIDEBAR ══════════════════════════════════ */
+    .sidebar {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .info-card {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      border-bottom-color: rgba(200, 188, 172, 0.4);
+      border-right-color: rgba(200, 188, 172, 0.35);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 12px rgba(0, 0, 0, 0.04);
+    }
+
+    .info-card-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      color: var(--text);
+      margin-bottom: 16px;
+    }
+
+    .step-list {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+
+    .step-num {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(160, 120, 88, 0.1);
+      border: 0.5px solid rgba(160, 120, 88, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .step-text {
+      font-size: 13px;
+      font-weight: 300;
+      color: var(--mute);
+      line-height: 1.7;
+      padding-top: 3px;
+    }
+
+    .track-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      padding: 11px 22px;
+      border-radius: 999px;
+      font-family: 'Jost', sans-serif;
+      font-size: 10.5px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--mid);
+      background: rgba(255, 255, 255, 0.7);
+      border: 0.5px solid rgba(190, 175, 158, 0.3);
+      text-decoration: none;
+      transition: background 0.22s, transform 0.22s;
+    }
+
+    .track-link:hover {
+      background: rgba(255, 255, 255, 0.95);
+      transform: translateY(-2px);
+    }
+
+    /* ══ POPUP ════════════════════════════════════ */
+    .popup-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(30, 22, 18, 0.35);
+      backdrop-filter: blur(6px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.25s ease, visibility 0.25s ease;
+    }
+
+    .popup-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .popup-box {
+      background: var(--glass);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      border-radius: 20px;
+      padding: 28px 32px;
+      max-width: 360px;
+      width: 90%;
+      text-align: center;
+      backdrop-filter: blur(16px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .popup-box p {
+      font-size: 13px;
+      color: var(--text);
+      margin-bottom: 18px;
+      line-height: 1.7;
+    }
+
+    .popup-box button {
+      padding: 10px 28px;
+      border-radius: 999px;
+      font-family: 'Jost', sans-serif;
+      font-size: 10px;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      background: var(--text);
+      color: var(--cream);
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .popup-box button:hover {
+      background: var(--mid);
+    }
+
+    /* ══ FOOTER ═══════════════════════════════════ */
+    footer {
+      background: var(--cream);
+      padding: 60px 52px 40px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 0.5px solid rgba(190, 175, 158, 0.3);
+      flex-wrap: wrap;
+      gap: 24px;
+    }
+
+    .footer-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 28px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 10.5px;
+      font-weight: 400;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--mute);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+
+    .footer-links a:hover {
+      color: var(--text);
+    }
+
+    .footer-copy {
+      font-size: 11px;
+      font-weight: 300;
+      letter-spacing: 0.06em;
+      color: var(--faint);
+    }
+
+    /* ══ BACK TO TOP ══════════════════════════════ */
+    .back-to-top {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 50px;
+      height: 50px;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      z-index: 99;
+    }
+
+    .back-to-top.show {
+      display: flex;
+    }
+
+    /* ══ ANIMATIONS ══════════════════════════════ */
+    .reveal {
+      opacity: 0;
+      transform: translateY(32px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ══ RESPONSIVE DESIGN ══════════════════════════════ */
+
+    /* Tablet (1024px and below) */
+    @media (max-width: 1024px) {
+      .form-section {
+        grid-template-columns: 1fr;
+        gap: 40px;
+        padding: 60px 40px 80px;
+      }
+
+      .form-card {
+        padding: 40px;
+      }
+    }
+
+    /* Tablet Portrait (768px and below) */
+    @media (max-width: 768px) {
+      nav {
+        padding: 16px 24px;
+      }
+
+      nav.scrolled {
+        padding: 12px 24px;
+      }
+
+      .menu-toggle {
+        display: flex;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 280px;
+        height: 100vh;
+        background: rgba(240, 235, 227, 0.98);
+        backdrop-filter: blur(20px);
+        flex-direction: column;
+        align-items: stretch;
+        padding: 80px 24px 40px;
+        gap: 12px;
+        box-shadow: -8px 0 32px rgba(0, 0, 0, 0.1);
+        transition: right 0.3s ease;
+        z-index: 100;
+      }
+
+      .nav-links.active {
+        right: 0;
+      }
+
+      .nav-pill {
+        justify-content: center;
+        padding: 12px 20px;
+        font-size: 12px;
+      }
+
+      .dropdown {
+        width: 100%;
+      }
+
+      .dropdown .nav-pill {
+        width: 100%;
+      }
+
+      .dropdown-menu {
+        position: static;
+        opacity: 1;
+        visibility: visible;
+        transform: none;
+        background: rgba(255, 255, 255, 0.5);
+        margin-top: 8px;
+        box-shadow: none;
+        display: none;
+      }
+
+      .dropdown.active .dropdown-menu {
+        display: block;
+      }
+
+      .page-hero {
+        padding: 120px 24px 50px;
+      }
+
+      .page-hero h1 {
+        font-size: 48px;
+      }
+
+      .form-section {
+        padding: 50px 24px 60px;
+        gap: 32px;
+      }
+
+      .form-card {
+        padding: 32px 24px;
+      }
+
+      .form-card h2 {
+        font-size: 28px;
+      }
+
+      .field-row {
+        grid-template-columns: 1fr;
+      }
+
+      .order-row {
+        grid-template-columns: 1fr 80px 36px;
+        gap: 8px;
+      }
+
+      .additional-row {
+        grid-template-columns: 1fr 36px;
+        gap: 8px;
+      }
+
+      .result-card {
+        padding: 24px 20px;
+      }
+
+      .result-card .order-id-box {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+
+      .copy-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .info-card {
+        padding: 24px;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        padding: 48px 24px 32px;
+      }
+
+      .footer-links {
+        justify-content: center;
+      }
+    }
+
+    /* Mobile (600px and below) */
+    @media (max-width: 600px) {
+      .page-hero h1 {
+        font-size: 36px;
+      }
+
+      .page-hero p {
+        font-size: 13px;
+      }
+
+      .form-card h2 {
+        font-size: 24px;
+      }
+
+      .form-card .form-sub {
+        font-size: 12px;
+        margin-bottom: 28px;
+      }
+
+      .form-divider span {
+        font-size: 18px;
+      }
+
+      .order-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .order-row .remove-row {
+        width: 100%;
+        height: 36px;
+      }
+
+      .additional-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      .additional-row .remove-row {
+        width: 100%;
+        height: 36px;
+      }
+
+      .add-row-btn {
+        width: 100%;
+        justify-content: center;
+      }
+
+      .submit-btn {
+        padding: 14px 24px;
+        font-size: 10px;
+      }
+
+      .back-to-top {
+        width: 44px;
+        height: 44px;
+        bottom: 16px;
+        right: 16px;
+      }
+
+      .step-item {
+        gap: 12px;
+      }
+
+      .step-text {
+        font-size: 12px;
+      }
+    }
+
+    /* Small Mobile (480px and below) */
+    @media (max-width: 480px) {
+      .page-hero h1 {
+        font-size: 28px;
+      }
+
+      .form-card {
+        padding: 24px 20px;
+      }
+
+      .form-card h2 {
+        font-size: 22px;
+      }
+
+      .result-card .result-title {
+        font-size: 20px;
+      }
+
+      .result-card .order-id {
+        font-size: 18px;
+      }
+
+      .info-card-title {
+        font-size: 18px;
+      }
+    }
+
+    /* Touch-friendly improvements */
+    @media (hover: none) and (pointer: coarse) {
+
+      .nav-pill,
+      .btn,
+      .add-row-btn,
+      .remove-row,
+      .submit-btn,
+      .copy-btn,
+      .track-link,
+      .back-to-top {
+        cursor: default;
+      }
+
+      .nav-pill:active {
+        background: rgba(255, 255, 255, 0.95);
+        transform: scale(0.98);
+      }
+
+      .submit-btn:active {
+        transform: scale(0.98);
+      }
+
+      .field-group input,
+      .field-group textarea,
+      .field-group select {
+        font-size: 16px;
+        /* Prevents zoom on iOS */
+      }
+    }
+
+    /* Reduce motion for accessibility */
+    @media (prefers-reduced-motion: reduce) {
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<nav class="nav-overlay">
+  <!-- ── POPUP ── -->
+  <div id="popupMessage" class="popup-overlay">
+    <div class="popup-box">
+      <p id="popupText"></p>
+      <button id="popupClose">OK</button>
+    </div>
+  </div>
 
-  <a href="index.html" class="nav-pill">HOME</a>
+  <!-- ── NAV ── -->
+  <nav id="navbar">
+    <a href="index.html" class="nav-logo">Render Graphics</a>
 
-  <div class="nav-right">
-    <a href="portfolio.html" class="nav-pill">PORTFOLIO</a>
-    <a href="services.html" class="nav-pill">SERVICES</a>
-    <a href="about.html" class="nav-pill">ABOUT</a>
+    <button class="menu-toggle" id="menuToggle" aria-label="Menu">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
 
-    <!-- 🔥 FIXED DROPDOWN -->
-    <div class="dropdown">
-      <div class="nav-pill">ORDER ▾</div>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html" class="nav-pill">HOME</a>
+      <a href="portfolio.html" class="nav-pill">Portfolio</a>
+      <a href="services.html" class="nav-pill">Services</a>
+      <a href="about.html" class="nav-pill">About</a>
+      <div class="dropdown" id="orderDropdown">
+        <div class="nav-pill active">Order ▾</div>
+        <div class="dropdown-menu">
+          <a href="order.html">Place Order</a>
+          <a href="track.html">Check Order Status</a>
+        </div>
+      </div>
+    </div>
+  </nav>
 
-      <div class="dropdown-menu">
-        <a href="order.html">Place Order</a>
-        <a href="track.html">Check Order Status</a>
+  <div class="mobile-overlay" id="mobileOverlay"></div>
+
+  <!-- ── PAGE HERO ── -->
+  <section class="page-hero">
+    <div class="section-label">Commission</div>
+    <h1>Place your <em>Order</em></h1>
+    <p>Fill in the form below and we'll get started on your piece — every detail crafted with care.</p>
+  </section>
+
+  <!-- ── FORM + SIDEBAR ── -->
+  <div class="form-section">
+
+    <div class="form-card reveal">
+      <h2>Order details</h2>
+      <p class="form-sub">Tell us about yourself and what you'd like made.</p>
+
+      <form id="orderForm">
+
+        <div class="field-row">
+          <div class="field-group">
+            <label>Your name</label>
+            <input type="text" name="name" placeholder="Full name" required>
+          </div>
+          <div class="field-group">
+            <label>Email address</label>
+            <input type="email" name="email" placeholder="you@email.com" required>
+          </div>
+        </div>
+
+        <!-- ── SERVICES ── -->
+        <div class="form-divider"><span>Services</span></div>
+        <div id="orderItems"></div>
+        <button type="button" class="add-row-btn" id="addRowBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Add another service
+        </button>
+
+        <!-- ── ADDITIONALS ── -->
+        <div class="form-divider"><span>Additionals <span
+              style="font-size:11px;letter-spacing:0.1em;color:var(--faint);font-family:'Jost',sans-serif;font-weight:300;text-transform:uppercase;margin-left:6px;">Optional</span></span>
+        </div>
+        <div id="additionalItems"></div>
+        <button type="button" class="add-row-btn" id="addAdditionalBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Add an additional
+        </button>
+
+        <!-- ── TOTAL ── -->
+        <div id="totalBox" style="margin-top: 20px;">
+          <span class="total-label">Total</span>
+          <span id="totalPrice">$0.00</span>
+        </div>
+
+        <!-- ── DETAILS ── -->
+        <div class="form-divider"><span>Details</span></div>
+        <div class="field-group">
+          <label>Additional notes</label>
+          <textarea name="message"
+            placeholder="Describe your vision, style preferences, colours, or anything else we should know..."></textarea>
+        </div>
+
+        <!-- ── REFERENCE IMAGES ── -->
+        <div class="form-divider"><span>Reference images</span></div>
+        <div class="file-upload-area">
+          <input type="file" id="imageInput" multiple accept="image/*">
+          <div class="file-upload-icon">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="16 16 12 12 8 16" />
+              <line x1="12" y1="12" x2="12" y2="21" />
+              <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3" />
+            </svg>
+          </div>
+          <p><strong>Click to upload</strong> or drag & drop<br>Up to 10 images · JPG, PNG, WEBP</p>
+          <div id="filePreview"></div>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Submit Order</button>
+
+      </form>
+
+      <div id="orderResult"></div>
+    </div>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="info-card reveal" style="transition-delay:0.1s">
+        <div class="info-card-title">How it works</div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num">1</div>
+            <div class="step-text">Fill out this form with your details, chosen service, and any reference images.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">2</div>
+            <div class="step-text">We'll accept your order and get to work crafting your piece with care.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">3</div>
+            <div class="step-text">Track your order anytime using the Order ID you'll receive after submitting.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num">4</div>
+            <div class="step-text">Your finished artwork will be delivered to you digitally, ready to print or share.
+            </div>
+          </div>
+        </div>
+        <a href="track.html" class="track-link">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          Track an existing order
+        </a>
+      </div>
+
+      <div class="info-card reveal" style="transition-delay:0.2s">
+        <div class="info-card-title">Good to know</div>
+        <div class="step-list">
+          <div class="step-item">
+            <div class="step-num"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg></div>
+            <div class="step-text">Upload clear, well-lit reference photos for best results.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg></div>
+            <div class="step-text">Delivery time depends on the complexity of the commission.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg></div>
+            <div class="step-text">Save your Order ID — you'll need it to check your progress.</div>
+          </div>
+          <div class="step-item">
+            <div class="step-num"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="20 6 9 17 4 12" />
+              </svg></div>
+            <div class="step-text">Maximum 10 reference images per order.</div>
+          </div>
+        </div>
       </div>
     </div>
 
   </div>
 
-</nav>
-<div class="page">
+  <!-- ── FOOTER ── -->
+  <footer>
+    <span class="footer-brand">Render Graphics</span>
+    <div class="footer-links">
+      <a href="portfolio.html">Portfolio</a>
+      <a href="services.html">Services</a>
+      <a href="about.html">About</a>
+      <a href="order.html">Order</a>
+    </div>
+    <span class="footer-copy">© 2025 Render Graphics. All rights reserved.</span>
+  </footer>
+
+  <button class="back-to-top" id="backToTop">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+      stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="18,15 12,9 6,15"></polyline>
+    </svg>
+  </button>
+
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp, getDocs }
+      from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const app = initializeApp({
+      apiKey: "AIzaSyCuP5W68lIQuoETBf5PrEQG8AJo2eU4ezU",
+      authDomain: "render-graphics.firebaseapp.com",
+      projectId: "render-graphics",
+      storageBucket: "render-graphics.firebasestorage.app",
+      messagingSenderId: "348022591762",
+      appId: "1:348022591762:web:efcac1875b11ae1c17a3cb"
+    });
+    const db = getFirestore(app);
+
+
+    /* ── State ── */
+    let services = [];
+    let additionals = [];
+    let selectedFiles = [];
+
+    /* ── Popup ── */
+    function showPopup(message) {
+      document.getElementById("popupText").textContent = message;
+      document.getElementById("popupMessage").classList.add("show");
+    }
+
+    document.getElementById("popupClose").addEventListener("click", () => {
+      document.getElementById("popupMessage").classList.remove("show");
+    });
+
+    /* ── Helpers ── */
+    function parsePrice(raw) {
+      return Number(String(raw ?? "").replace(/[^\d.]/g, "")) || 0;
+    }
+
+    function formatUSD(amount) {
+      return "$" + amount.toLocaleString("en-US", { minimumFractionDigits: 2 });
+    }
+
+    /* ════════════════════════════════════════════
+       TOTAL — sums both services + additionals
+    ════════════════════════════════════════════ */
+    function updateTotal() {
+      // Services total
+      let total = [...document.querySelectorAll(".order-row")].reduce((sum, row) => {
+        const title = row.querySelector("select").value;
+        const qty = Number(row.querySelector("input[type='number']").value) || 0;
+        const service = services.find(s => s.title === title);
+        return sum + (service ? parsePrice(service.price) * qty : 0);
+      }, 0);
+
+      // Additionals total (each selected row adds its flat price once)
+      [...document.querySelectorAll(".additional-row")].forEach(row => {
+        const title = row.querySelector("select").value;
+        const add = additionals.find(a => a.title === title);
+        if (add) total += parsePrice(add.price);
+      });
+
+      document.getElementById("totalPrice").textContent = formatUSD(total);
+    }
+
+    /* ════════════════════════════════════════════
+       SERVICE ROWS
+    ════════════════════════════════════════════ */
+    function syncRemoveServiceBtns() {
+      const rows = document.querySelectorAll(".order-row");
+      rows.forEach(row => {
+        row.querySelector(".remove-row").style.display = rows.length === 1 ? "none" : "flex";
+      });
+    }
+
+    function addServiceRow(serviceTitle = "", qty = 1) {
+      const container = document.getElementById("orderItems");
+      const row = document.createElement("div");
+      row.className = "order-row";
+
+      const options = services
+        .map(s => `<option value="${s.title}" ${s.title === serviceTitle ? "selected" : ""}>${s.title}</option>`)
+        .join("");
+
+      row.innerHTML = `
+        <select name="service[]">${options}</select>
+        <input type="number" name="quantity[]" value="${qty}" min="1">
+        <button type="button" class="remove-row" title="Remove">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      `;
+
+      row.querySelector("select").addEventListener("change", updateTotal);
+      row.querySelector("input[type='number']").addEventListener("input", updateTotal);
+      row.querySelector(".remove-row").addEventListener("click", () => {
+        if (document.querySelectorAll(".order-row").length <= 1) return;
+        row.remove();
+        syncRemoveServiceBtns();
+        updateTotal();
+      });
+
+      container.appendChild(row);
+      syncRemoveServiceBtns();
+      updateTotal();
+    }
+
+    document.getElementById("addRowBtn").addEventListener("click", () => addServiceRow());
+
+    function loadCart() {
+      const cart = JSON.parse(localStorage.getItem("orderCart") || "[]");
+      if (!cart.length) return;
+      document.getElementById("orderItems").innerHTML = "";
+      cart.forEach(item => addServiceRow(item.service, item.quantity));
+      localStorage.removeItem("orderCart");
+    }
+
+    /* ════════════════════════════════════════════
+       ADDITIONAL ROWS
+    ════════════════════════════════════════════ */
+    function syncRemoveAdditionalBtns() {
+      const rows = document.querySelectorAll(".additional-row");
+      rows.forEach(row => {
+        // Always show the remove button for additionals since they are optional
+        row.querySelector(".remove-row").style.display = "flex";
+      });
+    }
+
+    function addAdditionalRow(selectedTitle = "") {
+      const container = document.getElementById("additionalItems");
+      const row = document.createElement("div");
+      row.className = "additional-row";
+
+      const options = additionals
+        .map(a => `<option value="${a.title}" ${a.title === selectedTitle ? "selected" : ""}>${a.title} — ${formatUSD(parsePrice(a.price))}</option>`)
+        .join("");
+
+      row.innerHTML = `
+        <select name="additional[]">${options}</select>
+        <button type="button" class="remove-row" title="Remove">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+      `;
+
+      row.querySelector("select").addEventListener("change", updateTotal);
+      row.querySelector(".remove-row").addEventListener("click", () => {
+        row.remove();
+        syncRemoveAdditionalBtns();
+        updateTotal();
+      });
+
+      container.appendChild(row);
+      syncRemoveAdditionalBtns();
+      updateTotal();
+    }
+
+    document.getElementById("addAdditionalBtn").addEventListener("click", () => {
+      if (additionals.length === 0) {
+        showPopup("No additionals are available right now.");
+        return;
+      }
+      addAdditionalRow();
+    });
+
+    /* ════════════════════════════════════════════
+       LOAD FROM FIRESTORE
+    ════════════════════════════════════════════ */
+    async function loadServices() {
+      try {
+        const snapshot = await getDocs(collection(db, "services"));
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          services.push({ id: doc.id, title: d.title, description: d.description, price: d.price });
+        });
+      } catch (err) {
+        console.error("Error loading services:", err);
+      }
+
+      addServiceRow();
+      loadCart();
+      updateTotal();
+    }
+
+    async function loadAdditionals() {
+      try {
+        const snapshot = await getDocs(collection(db, "additionals"));
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          additionals.push({ id: doc.id, title: d.title, price: d.price });
+        });
+      } catch (err) {
+        console.error("Error loading additionals:", err);
+      }
+    }
+
+    /* ════════════════════════════════════════════
+       IMAGE PREVIEW
+    ════════════════════════════════════════════ */
+    function renderPreview() {
+      const container = document.getElementById("filePreview");
+      container.innerHTML = "";
+      selectedFiles.forEach((file, index) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const div = document.createElement("div");
+          div.className = "preview-item";
+          div.innerHTML = `
+            <img src="${e.target.result}" alt="${file.name}">
+            <div class="preview-remove" data-index="${index}">×</div>
+          `;
+          div.querySelector(".preview-remove").addEventListener("click", () => {
+            selectedFiles.splice(index, 1);
+            renderPreview();
+          });
+          container.appendChild(div);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    document.getElementById("imageInput").addEventListener("change", function () {
+      const all = Array.from(this.files);
+      const valid = all.filter(f => f.type.startsWith("image/"));
+      const rejected = all.length - valid.length;
+
+      if (rejected > 0) {
+        showPopup(`${rejected} file${rejected > 1 ? "s" : ""} were skipped — only image files (JPG, PNG, WEBP) are allowed.`);
+      }
+
+      selectedFiles = [...selectedFiles, ...valid];
+
+      if (selectedFiles.length > 10) {
+        selectedFiles = selectedFiles.slice(0, 10);
+        showPopup("You can upload a maximum of 10 images.");
+      }
+
+      renderPreview();
+      this.value = "";
+    });
+
+    /* ════════════════════════════════════════════
+       IMAGE → BASE64
+    ════════════════════════════════════════════ */
+    function fileToBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = e => {
+          const img = new Image();
+          img.onload = () => {
+            const MAX = 800;
+            const scale = img.width > MAX ? MAX / img.width : 1;
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL("image/jpeg", 0.75));
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    /* ════════════════════════════════════════════
+       SUBMIT
+    ════════════════════════════════════════════ */
+    document.getElementById("orderForm").addEventListener("submit", async function (e) {
+      e.preventDefault();
+
+      if (selectedFiles.length === 0) {
+        showPopup("Please upload at least one reference image.");
+        return;
+      }
+
+      const submitBtn = document.getElementById("submitBtn");
+      const resultDiv = document.getElementById("orderResult");
+
+      submitBtn.disabled = true;
+      resultDiv.innerHTML = "";
+
+      try {
+        const form = new FormData(this);
+
+        /* Convert images */
+        const imageBase64s = [];
+        for (let i = 0; i < selectedFiles.length; i++) {
+          submitBtn.textContent = `Processing image ${i + 1} of ${selectedFiles.length}…`;
+          imageBase64s.push(await fileToBase64(selectedFiles[i]));
+        }
+
+        submitBtn.textContent = "Saving order…";
+
+        /* Services payload */
+        const selectedServices = form.getAll("service[]");
+        const quantities = form.getAll("quantity[]").map(Number);
+
+        const servicesData = selectedServices.map((title, i) => {
+          const match = services.find(s => s.title === title);
+          return { name: title, price: match?.price ?? "", quantity: quantities[i] };
+        });
+
+        /* Additionals payload */
+        const selectedAdditionals = form.getAll("additional[]");
+        const additionalsData = selectedAdditionals
+          .filter(t => t)
+          .map(title => {
+            const match = additionals.find(a => a.title === title);
+            return { name: title, price: match?.price ?? "" };
+          });
+
+        /* Total */
+        const servicesTotal = servicesData.reduce((sum, s) => sum + parsePrice(s.price) * s.quantity, 0);
+        const additionalsTotal = additionalsData.reduce((sum, a) => sum + parsePrice(a.price), 0);
+        const totalPrice = servicesTotal + additionalsTotal;
+
+        /* Save to Firestore */
+        const docRef = await addDoc(collection(db, "orders"), {
+          name: form.get("name"),
+          email: form.get("email"),
+          services: servicesData,
+          additionals: additionalsData,
+          message: form.get("message"),
+          status: "Pending",
+          createdAt: serverTimestamp(),
+          images: imageBase64s,
+          totalPrice
+        });
+
+
+        /* Send to Backend API */
+        const serviceList = servicesData
+          .map(s => `${s.name} (×${s.quantity}) — $${Number(s.price).toLocaleString("en-US")}`)
+          .join("\n");
+
+        const additionalList = additionalsData.length
+          ? "\n\nAdditionals:\n" + additionalsData.map(a => `${a.name} — $${Number(a.price).toLocaleString("en-US")}`).join("\n")
+          : "";
+
+        const fullServiceList = serviceList + additionalList;
+
+        // Auto-detect API URL (works on localhost and production)
+        const API_URL = window.location.origin;
+        const response = await fetch(`${API_URL}/api/order`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: form.get("name"),
+            email: form.get("email"),
+            order_id: docRef.id,
+            services: fullServiceList,
+            message: form.get("message") || "None",
+            total: formatUSD(totalPrice)
+          })
+        });
+
+        const result = await response.json();
+
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+
+        console.log('✅ Order submitted to API:', result);
+
+        /* Reset */
+        this.reset();
+        document.getElementById("orderItems").innerHTML = "";
+        document.getElementById("additionalItems").innerHTML = "";
+        document.getElementById("filePreview").innerHTML = "";
+        selectedFiles = [];
+        addServiceRow();
+
+        /* Success */
+        resultDiv.innerHTML = `
+          <div class="result-card success">
+            <div class="result-label">Order submitted</div>
+            <div class="result-title">You're all set!</div>
+            <p>
+              Your order has been received. Save your Order ID below to track your progress.<br><br>
+              A confirmation email has been sent to <strong>${form.get("email")}</strong>.
+            </p>
+            <div class="order-id-box">
+              <span class="order-id" id="generatedId">${docRef.id}</span>
+              <button class="copy-btn" id="copyBtn">Copy</button>
+            </div>
+            ${imageBase64s.length ? `<p>${imageBase64s.length} image(s) attached.</p>` : ""}
+          </div>
+        `;
+
+        document.getElementById("copyBtn").addEventListener("click", () => {
+          navigator.clipboard.writeText(docRef.id).then(() => {
+            const btn = document.getElementById("copyBtn");
+            btn.textContent = "Copied!";
+            setTimeout(() => { btn.textContent = "Copy"; }, 2000);
+          });
+        });
+
+      } catch (err) {
+        console.error("Order error:", err);
+        const msg = err.message?.includes("exceeds the maximum allowed size")
+          ? "Images are too large. Please use smaller or fewer images."
+          : `Something went wrong: ${err.message}`;
+        resultDiv.innerHTML = `
+          <div class="result-card error">
+            <div class="result-title">Oops.</div>
+            <p>${msg}</p>
+          </div>`;
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = "Submit Order";
+      }
+    });
+
+    /* ── Boot ── */
+    await loadServices();
+    await loadAdditionals();
+  </script>
+
+  <script>
+    const navbar = document.getElementById("navbar");
+    window.addEventListener("scroll", () => navbar.classList.toggle("scrolled", window.scrollY > 60));
+
+    // Mobile menu functionality
+    const menuToggle = document.getElementById("menuToggle");
+    const navLinks = document.getElementById("navLinks");
+    const mobileOverlay = document.getElementById("mobileOverlay");
+    const orderDropdown = document.getElementById("orderDropdown");
+
+    function closeMobileMenu() {
+      navLinks.classList.remove("active");
+      menuToggle.classList.remove("active");
+      mobileOverlay.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+
+    function openMobileMenu() {
+      navLinks.classList.add("active");
+      menuToggle.classList.add("active");
+      mobileOverlay.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+
+    menuToggle.addEventListener("click", () => {
+      if (navLinks.classList.contains("active")) {
+        closeMobileMenu();
+      } else {
+        openMobileMenu();
+      }
+    });
+
+    mobileOverlay.addEventListener("click", closeMobileMenu);
+
+    // Handle dropdown on mobile
+    if (orderDropdown) {
+      const dropdownTrigger = orderDropdown.querySelector(".nav-pill");
+      dropdownTrigger.addEventListener("click", (e) => {
+        if (window.innerWidth <= 768) {
+          e.preventDefault();
+          orderDropdown.classList.toggle("active");
+        }
+      });
+    }
+
+    // Close mobile menu on link click
+    navLinks.querySelectorAll("a").forEach(link => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+          closeMobileMenu();
+        }
+      });
+    });
+
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768 && navLinks.classList.contains("active")) {
+        closeMobileMenu();
+      }
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+    const backToTopBtn = document.getElementById("backToTop");
+    window.addEventListener("scroll", () => backToTopBtn.classList.toggle("show", window.scrollY > 300));
+    backToTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  </script>
 
-<h2>Place Your Order</h2>
-
-<form id="orderForm" enctype="multipart/form-data">
-
-<!-- CLIENT NAME -->
-<input type="text" name="name" placeholder="Your Name" required>
-
-<!-- CLIENT EMAIL -->
-<input type="email" name="email" placeholder="Your Email Address" required>
-
-<h3>Your Services</h3>
-
-<div id="orderItems"></div>
-
-<button type="button" onclick="addRow()">Add Another Service</button>
-
-<br><br>
-
-<textarea name="message" placeholder="Additional details about your order"></textarea>
-
-<h3>Upload Reference Images (Max 10)</h3>
-
-<input type="file" name="images" multiple accept="image/*">
-
-<br><br>
-
-<button type="submit">Submit Order</button>
-
-</form>
-
-<div id="orderResult"></div>
-
-</div>
-
-<script>
-
-let services=[];
-
-async function loadServices(){
-
-const res = await fetch("/api/services");
-
-services = await res.json();
-
-addRow();
-
-loadCart();
-
-}
-
-function addRow(service="", qty=1){
-
-const container = document.getElementById("orderItems");
-
-let options="";
-
-services.forEach(s=>{
-
-const selected = s.title === service ? "selected" : "";
-
-options += `<option value="${s.title}" ${selected}>${s.title}</option>`;
-
-});
-
-container.innerHTML += `
-
-<div class="order-row">
-
-<select name="service[]">
-${options}
-</select>
-
-<input type="number" name="quantity[]" value="${qty}" min="1">
-
-</div>
-
-`;
-
-}
-
-function loadCart(){
-
-let cart = JSON.parse(localStorage.getItem("orderCart")) || [];
-
-if(cart.length === 0) return;
-
-document.getElementById("orderItems").innerHTML="";
-
-cart.forEach(item=>{
-addRow(item.service,item.quantity);
-});
-
-localStorage.removeItem("orderCart");
-
-}
-
-document.getElementById("orderForm").addEventListener("submit", async function(e){
-
-e.preventDefault();
-
-const formData = new FormData(this);
-
-const res = await fetch("/api/order",{
-method:"POST",
-body:formData
-});
-
-const data = await res.json();
-
-document.getElementById("orderForm").reset();
-
-document.getElementById("orderItems").innerHTML="";
-
-addRow();
-
-document.getElementById("orderResult").innerHTML = `
-
-<div style="margin-top:20px;padding:20px;border:1px solid #ddd;border-radius:8px">
-
-<h3>Order Submitted Successfully!</h3>
-
-<p>Your Order ID:</p>
-
-<h2>${data.orderId}</h2>
-
-<p>A confirmation email has been sent to you with your order details.</p>
-
-<p>Save your Order ID to check your order status.</p>
-
-</div>
-
-`;
-
-});
-
-loadServices();
-
-</script>
-<script>
-document.querySelectorAll(".dropdown-btn").forEach(btn => {
-  btn.addEventListener("click", function(e){
-    e.stopPropagation();
-    const menu = this.nextElementSibling;
-    menu.style.display = menu.style.display === "block" ? "none" : "block";
-  });
-});
-
-document.addEventListener("click", () => {
-  document.querySelectorAll(".dropdown-menu").forEach(menu => {
-    menu.style.display = "none";
-  });
-});
-</script>
 </body>
+
 </html>
