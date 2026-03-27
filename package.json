@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint . --ext .js --ext .html --ext .css || true",
+    "test": "npm run lint && npm run htmlhint",
+    "htmlhint": "htmlhint public/**/*.html admin/**/*.html"
   },
   "keywords": [],
   "author": "",
@@ -15,5 +17,9 @@
     "firebase-admin": "^13.7.0",
     "multer": "^2.1.1",
     "nodemailer": "^8.0.2"
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "htmlhint": "^1.0.0"
   }
 }
