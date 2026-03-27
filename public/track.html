@@ -959,4 +959,37 @@
   </script>
 
 </body>
+</html>ocument.querySelectorAll(".dropdown-menu").forEach(menu => {
+    menu.style.display = "none";
+  });
+});
+</script>
+</body>
+</html>
+ch(link => {
+      link.addEventListener("click", () => {
+        if (window.innerWidth <= 768) {
+          closeMobileMenu();
+        }
+      });
+    });
+
+    // Handle window resize
+    window.addEventListener("resize", () => {
+      if (window.innerWidth > 768 && navLinks.classList.contains("active")) {
+        closeMobileMenu();
+      }
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); observer.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll(".reveal").forEach(el => observer.observe(el));
+
+    const backToTopBtn = document.getElementById("backToTop");
+    window.addEventListener("scroll", () => backToTopBtn.classList.toggle("show", window.scrollY > 300));
+    backToTopBtn.addEventListener("click", () => window.scrollTo({ top: 0, behavior: "smooth" }));
+  </script>
+
+</body>
 </html>
