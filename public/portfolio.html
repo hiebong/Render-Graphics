@@ -1201,41 +1201,73 @@
       const grid = document.getElementById("portfolioGrid");
       const filterBar = document.getElementById("filterBar");
 
-      onSnapshot(collection(db, "portfolio"), (snapshot) => {
-        const items = [];
-        snapshot.forEach(doc => items.push(doc.data()));
+      // Default to server-side API endpoint first (works in deployed Vercel)
+      fetch("/api/portfolio")
+        .then(res => res.json())
+        .then((items) => {
+          if (!items || !items.length) {
+            grid.innerHTML = `<div class="grid-empty">No artworks yet — check back soon.</div>`;
+            return;
+          }
 
-        items.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+          items.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+          allItems = items;
 
-        if (snapshot.empty) {
-          grid.innerHTML = `<div class="grid-empty">No artworks yet — check back soon.</div>`;
-          return;
-        }
+          // Rebuild filter buttons
+          filterBar.innerHTML = `<button class="filter-btn active" data-cat="all">All</button>`;
+          const categories = new Set();
+          items.forEach(data => { if (data.category) categories.add(data.category); });
+          categories.forEach(cat => {
+            const btn = document.createElement("button");
+            btn.className = "filter-btn";
+            btn.dataset.cat = cat;
+            btn.textContent = cat;
+            filterBar.appendChild(btn);
+          });
 
-        allItems = items;
+          const activeBtn = filterBar.querySelector(".filter-btn.active");
+          const activeCat = activeBtn ? activeBtn.dataset.cat : "all";
+          const filtered = activeCat === "all" ? allItems : allItems.filter(d => d.category === activeCat);
+          renderCards(filtered);
+          setupFilters();
+        })
+        .catch((err) => {
+          console.warn("[Portfolio] /api/portfolio failed, falling back to Firestore", err);
 
-        // Rebuild filter buttons
-        filterBar.innerHTML = `<button class="filter-btn active" data-cat="all">All</button>`;
-        const categories = new Set();
-        items.forEach(data => { if (data.category) categories.add(data.category); });
-        categories.forEach(cat => {
-          const btn = document.createElement("button");
-          btn.className = "filter-btn";
-          btn.dataset.cat = cat;
-          btn.textContent = cat;
-          filterBar.appendChild(btn);
+          // If Firestore is available, still use realtime collection fallback
+          onSnapshot(collection(db, "portfolio"), (snapshot) => {
+            const items = [];
+            snapshot.forEach(doc => items.push(doc.data()));
+
+            items.sort((a, b) => (a.title || "").localeCompare(b.title || ""));
+
+            if (snapshot.empty) {
+              grid.innerHTML = `<div class="grid-empty">No artworks yet — check back soon.</div>`;
+              return;
+            }
+
+            allItems = items;
+            filterBar.innerHTML = `<button class="filter-btn active" data-cat="all">All</button>`;
+            const categories = new Set();
+            items.forEach(data => { if (data.category) categories.add(data.category); });
+            categories.forEach(cat => {
+              const btn = document.createElement("button");
+              btn.className = "filter-btn";
+              btn.dataset.cat = cat;
+              btn.textContent = cat;
+              filterBar.appendChild(btn);
+            });
+
+            const activeBtn = filterBar.querySelector(".filter-btn.active");
+            const activeCat = activeBtn ? activeBtn.dataset.cat : "all";
+            const filtered = activeCat === "all" ? allItems : allItems.filter(d => d.category === activeCat);
+            renderCards(filtered);
+            setupFilters();
+          }, (fireErr) => {
+            console.error("[Portfolio] Firestore fallback failed", fireErr);
+            grid.innerHTML = `<div class="grid-empty">Could not load portfolio.</div>`;
+          });
         });
-
-        const activeBtn = filterBar.querySelector(".filter-btn.active");
-        const activeCat = activeBtn ? activeBtn.dataset.cat : "all";
-        const filtered = activeCat === "all" ? allItems : allItems.filter(d => d.category === activeCat);
-        renderCards(filtered);
-        setupFilters();
-
-      }, (err) => {
-        console.error("[Portfolio]", err);
-        grid.innerHTML = `<div class="grid-empty">Could not load portfolio.</div>`;
-      });
     }
 
     function renderCards(items) {

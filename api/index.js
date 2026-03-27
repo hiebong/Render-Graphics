@@ -5,9 +5,43 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
+// load local sample data if available
+let portfolioData = [];
+let servicesData = [];
+
+try {
+  portfolioData = require('../data/portfolio.json');
+} catch (e) {
+  console.warn('⚠️ portfolio.json not found, using default sample data');
+  portfolioData = [
+    { title: 'Sample Artwork', category: 'Digital Painting', image: '/logo/logo.png', description: 'Sample art item' }
+  ];
+}
+
+try {
+  servicesData = require('../data/services.json');
+} catch (e) {
+  console.warn('⚠️ services.json not found, using default sample services');
+  servicesData = [
+    { title: 'Character Illustration', price: '25', description: 'Custom character art' },
+    { title: 'Logo Design', price: '20', description: 'Modern logo design' }
+  ];
+}
+
+const app = express();
+
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
+// API endpoints for portfolio and services in case Firestore is not accessible
+app.get('/api/portfolio', (req, res) => {
+  res.json(portfolioData);
+});
+
+app.get('/api/services', (req, res) => {
+  res.json(servicesData);
+});
 
 // Email transporter
 let transporter = null;
