@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run tests (eslint + stylelint + htmlhint)
+      - name: Run tests
         run: npm test
 
   deploy:
