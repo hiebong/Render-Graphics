@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint . --ext .js --ext .html --ext .css || true",
+    "lint": "eslint . --ext .js || true",
     "test": "npm run lint && npm run htmlhint",
     "htmlhint": "htmlhint public/**/*.html admin/**/*.html"
   },
