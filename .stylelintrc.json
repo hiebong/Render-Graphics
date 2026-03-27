@@ -11,6 +11,13 @@
     "no-duplicate-selectors": null,
     "selector-id-pattern": null,
     "rule-empty-line-before": null,
-    "font-family-name-quotes": null
+    "font-family-name-quotes": null,
+    "declaration-block-single-line-max-declarations": null,
+    "property-no-vendor-prefix": null,
+    "shorthand-property-no-redundant-values": null,
+    "keyframes-name-pattern": null,
+    "media-feature-range-notation": null,
+    "declaration-block-no-redundant-longhand-properties": null,
+    "media-feature-name-no-vendor-prefix": null
   }
 }

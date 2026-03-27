@@ -10,21 +10,22 @@
     "dev": "vercel dev",
     "deploy": "vercel deploy --prod",
     "lint": "eslint . --ext .js",
-    "stylelint": "stylelint \"**/*.css\"",
+    "stylelint": "stylelint \"**/*.{css,html}\" --customSyntax postcss-html",
     "htmlhint": "htmlhint public/**/*.html admin/**/*.html",
     "test": "npm run lint && npm run stylelint && npm run htmlhint"
   },
   "dependencies": {
+    "body-parser": "^1.20.2",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "firebase-admin": "^13.7.0",
     "multer": "^2.1.1",
-    "nodemailer": "^8.0.2",
-    "body-parser": "^1.20.2"
+    "nodemailer": "^8.0.2"
   },
   "devDependencies": {
     "eslint": "^8.56.0",
     "htmlhint": "^1.0.0",
+    "postcss-html": "^1.8.1",
     "stylelint": "15.10.0",
     "stylelint-config-standard": "34.0.0"
   }
