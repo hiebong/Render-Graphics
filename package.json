@@ -12,7 +12,8 @@
     "lint": "eslint . --ext .js",
     "stylelint": "stylelint \"**/*.{css,html}\" --customSyntax postcss-html",
     "htmlhint": "htmlhint public/**/*.html admin/**/*.html",
-    "test": "npm run lint && npm run stylelint && npm run htmlhint"
+    "check-css-semicolon": "node scripts/check-css-semicolon.js",
+    "test": "npm run lint && npm run stylelint && npm run htmlhint && npm run check-css-semicolon"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
