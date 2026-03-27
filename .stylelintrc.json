@@ -1,0 +1,16 @@
+{
+  "extends": "stylelint-config-standard",
+  "rules": {
+    "font-family-no-missing-generic-family-keyword": null,
+    "comment-empty-line-before": null,
+    "block-no-empty": null,
+    "color-function-notation": null,
+    "alpha-value-notation": null,
+    "declaration-empty-line-before": null,
+    "no-descending-specificity": null,
+    "no-duplicate-selectors": null,
+    "selector-id-pattern": null,
+    "rule-empty-line-before": null,
+    "font-family-name-quotes": null
+  }
+}

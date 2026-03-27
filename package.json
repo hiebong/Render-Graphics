@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "lint": "eslint . --ext .js || true",
-    "test": "npm run lint && npm run htmlhint",
-    "htmlhint": "htmlhint public/**/*.html admin/**/*.html"
+    "lint": "eslint . --ext .js",
+    "stylelint": "stylelint \"**/*.css\"",
+    "htmlhint": "htmlhint public/**/*.html admin/**/*.html",
+    "test": "npm run lint && npm run stylelint && npm run htmlhint"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +21,8 @@
   },
   "devDependencies": {
     "eslint": "^8.56.0",
-    "htmlhint": "^1.0.0"
+    "htmlhint": "^1.0.0",
+    "stylelint": "15.10.0",
+    "stylelint-config-standard": "34.0.0"
   }
 }
