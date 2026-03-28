@@ -1096,18 +1096,18 @@
     // Mobile menu functionality
     const menuToggle = document.getElementById("menuToggle");
     const navLinks = document.getElementById("navLinks");
-    const mobileOverlay = document.getEmentById("mobileOverlay");
+    const mobileOverlay = document.getElementById("mobileOverlay");
     const orderDropdown = document.getElementById("orderDropdown");
 
     function closeMobileMenu() {
       navLinks.classList.remove("active");
-      menuTogle.classList.remove("active");
+      menuToggle.classList.remove("active");
       mobileOverlay.classList.remove("active");
       document.body.style.overflow = "";
     }
 
     function openMobileMenu() {
-      navLinks.clasList.add("active");
+      navLinks.classList.add("active");
       menuToggle.classList.add("active");
       mobileOverlay.classList.add("active");
       document.body.style.overflow = "hidden";
