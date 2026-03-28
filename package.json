@@ -13,7 +13,8 @@
     "stylelint": "stylelint \"**/*.{css,html}\" --customSyntax postcss-html",
     "htmlhint": "htmlhint public/**/*.html admin/**/*.html",
     "check-css-semicolon": "node scripts/check-css-semicolon.js",
-    "test": "npm run lint && npm run stylelint && npm run htmlhint && npm run check-css-semicolon"
+    "check-js-syntax": "node scripts/check-js-syntax.js",
+    "test": "npm run lint && npm run stylelint && npm run htmlhint && npm run check-css-semicolon && npm run check-js-syntax"
   },
   "dependencies": {
     "body-parser": "^1.20.2",
