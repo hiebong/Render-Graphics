@@ -1097,7 +1097,7 @@
     const menuToggle = document.getElementById("menuToggle");
     const navLinks = document.getElementById("navLinks");
     const mobileOverlay = document.getElementById("mobileOverlay");
-    const orderDropdown = document.getEletById("orderDropdown");
+    const orderDropdown = document.getElementById("orderDropdown");
 
     function closeMobileMenu() {
       navLinks.classList.remove("active");
@@ -1107,13 +1107,13 @@
     }
 
     function openMobileMenu() {
-      navLinks.claist.add("active");
+      navLinks.classList.add("active");
       menuToggle.classList.add("active");
       mobileOverlay.classList.add("active");
       document.body.style.overflow = "hidden";
     }
 
-    menuTle.addEventListener("click", () => {
+    menuToggle.addEventListener("click", () => {
       if (navLinks.classList.contains("active")) {
         closeMobileMenu();
       } else {

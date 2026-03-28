@@ -9,6 +9,7 @@
     "ecmaVersion": 12,
     "sourceType": "module"
   },
+  "plugins": ["html"],
   "rules": {
     "no-unused-vars": ["warn"],
     "no-console": "off"

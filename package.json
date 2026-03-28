@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "vercel dev",
     "deploy": "vercel deploy --prod",
-    "lint": "eslint . --ext .js",
+    "lint": "eslint . --ext .js,.html",
     "stylelint": "stylelint \"**/*.{css,html}\" --customSyntax postcss-html",
     "htmlhint": "htmlhint public/**/*.html admin/**/*.html",
     "check-css-semicolon": "node scripts/check-css-semicolon.js",
@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "eslint": "^8.56.0",
+    "eslint-plugin-html": "^8.1.4",
     "htmlhint": "^1.0.0",
     "postcss-html": "^1.8.1",
     "stylelint": "15.10.0",
